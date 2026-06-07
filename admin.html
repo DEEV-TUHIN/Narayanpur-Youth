@@ -1,0 +1,2932 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>অ্যাডমিন প্যানেল |নারায়নপুর যুবসমাজ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans Bengali', sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+        }
+
+        /* মোবাইল ফার্স্ট ডিজাইন */
+        .admin-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* টপ হেডার */
+        .top-header {
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .menu-toggle {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #ffd700;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .logo-area i {
+            color: #ffd700;
+            font-size: 1.5rem;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            background: #ffd700;
+            color: #1a472a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .admin-name {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .admin-name {
+                display: inline;
+            }
+        }
+
+        /* সাইডবার */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: #1a472a;
+            color: white;
+            transition: 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+            padding-top: 60px;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: #0f2e1c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .close-sidebar {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #ffd700;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 1rem;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-menu a i {
+            width: 20px;
+            color: #ffd700;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: #ffd700;
+            color: #1a472a;
+        }
+
+        .sidebar-menu a:hover i {
+            color: #1a472a;
+        }
+
+        .badge {
+            margin-left: auto;
+            background: #ff4444;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+        }
+
+        /* ওভারলে */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* মূল কন্টেন্ট */
+        .main-content {
+            flex: 1;
+            padding: 1rem;
+            margin-bottom: 60px;
+        }
+
+        /* মোবাইল নিচের নেভিগেশন */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 90;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 8px;
+        }
+
+        .bottom-nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .bottom-nav-item.active {
+            color: #1a472a;
+            background: rgba(26, 71, 42, 0.1);
+        }
+
+        /* স্ট্যাটিস্টিক্স কার্ড */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(26, 71, 42, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #1a472a;
+        }
+
+        .stat-info h3 {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-number {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1a472a;
+        }
+
+        /* কুইক অ্যাকশন */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quick-action-btn {
+            background: white;
+            padding: 0.8rem 0.3rem;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            color: #1a472a;
+            font-size: 0.7rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .quick-action-btn i {
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 0.3rem;
+            color: #ffd700;
+        }
+
+        /* টেবিল কন্টেইনার */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .table-title {
+            color: #1a472a;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* টেবিল */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            background: #1a472a;
+            color: white;
+            padding: 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        td {
+            padding: 0.8rem;
+            border-bottom: 1px solid #eee;
+            font-size: 0.85rem;
+        }
+
+        /* মোবাইলের জন্য টেবিল স্ক্রল */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* ফর্ম এলিমেন্টস */
+        .search-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-bar input,
+        .search-bar select {
+            flex: 1;
+            min-width: 150px;
+            padding: 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        /* বোতাম */
+        .btn {
+            background: #1a472a;
+            color: white;
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        /* স্ট্যাটাস ব্যাজ */
+        .status-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* অ্যাকশন বাটন */
+        .action-btns {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.3rem 0.6rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: white;
+        }
+
+        .btn-view { background: #17a2b8; }
+        .btn-edit { background: #ffc107; color: #000; }
+        .btn-delete { background: #dc3545; }
+        .btn-approve { background: #28a745; }
+
+        /* মডাল */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* ফর্ম গ্রুপ */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.3rem;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        /* চেকবক্স গ্রুপ */
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        /* নোটিফিকেশন প্যানেল */
+        .notifications-panel {
+            position: absolute;
+            top: 60px;
+            right: 10px;
+            width: 300px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .notifications-panel.active {
+            display: block;
+        }
+
+        .notifications-header {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .notification-item:hover {
+            background: #f5f5f5;
+        }
+
+        .notification-item.unread {
+            background: #e8f4e8;
+        }
+
+        /* গ্যালারি গ্রিড */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-item-overlay {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+
+        /* লোডিং স্পিনার */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1a472a;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ট্যাব নেভিগেশন */
+        .tab-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn.active {
+            background: #1a472a;
+            color: white;
+        }
+
+        /* হাইড ক্লাস */
+        .hidden {
+            display: none !important;
+        }
+
+        /* মেসেজ সেন্টার */
+        .message {
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .message.sent {
+            background: #1a472a;
+            color: white;
+            margin-left: auto;
+            max-width: 80%;
+        }
+
+        .message.received {
+            background: #f0f0f0;
+            max-width: 80%;
+        }
+
+        /* প্যাজিনেশন */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.3rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            padding: 0.3rem 0.6rem;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            min-width: 35px;
+        }
+
+        .page-btn.active {
+            background: #1a472a;
+            color: white;
+            border-color: #1a472a;
+        }
+
+        /* ===== মোবাইল রেসপন্সিভ ===== */
+
+        /* ট্যাবলেট */
+        @media (min-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .quick-actions { grid-template-columns: repeat(6, 1fr); }
+            .gallery-grid { grid-template-columns: repeat(4, 1fr); }
+            .bottom-nav { display: none; }
+            .admin-name { display: inline; }
+        }
+
+        /* মোবাইল — table স্ক্রোলযোগ্য */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table { min-width: 500px; }
+
+        /* মোবাইল — modal full width */
+        @media (max-width: 600px) {
+            .modal-content {
+                width: 95% !important;
+                max-height: 92vh;
+                overflow-y: auto;
+                margin: 4vh auto;
+                border-radius: 12px;
+            }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .quick-actions { grid-template-columns: repeat(3, 1fr); }
+            .table-header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+            .table-actions { flex-wrap: wrap; gap: 0.4rem; }
+            .action-btns { flex-direction: row; gap: 0.3rem; }
+            .dashboard-header { flex-wrap: wrap; gap: 0.5rem; }
+            .top-header { padding: 0.6rem 0.8rem; }
+            .top-header h1 { font-size: 0.9rem; }
+            .stat-card { padding: 0.8rem; }
+            .stat-number { font-size: 1.5rem; }
+            .btn { padding: 0.5rem 0.8rem; font-size: 0.82rem; }
+        }
+
+        /* ডেস্কটপ */
+        @media (min-width: 1024px) {
+            .admin-container { flex-direction: row; }
+            .top-header { display: none; }
+            .sidebar {
+                position: sticky;
+                left: 0;
+                width: 280px;
+                height: 100vh;
+                padding-top: 0;
+            }
+            .sidebar-header { position: static; }
+            .close-sidebar { display: none; }
+
+            .sidebar-overlay {
+                display: none !important;
+            }
+
+            .main-content {
+                margin-bottom: 0;
+                padding: 1.5rem;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+
+            .menu-toggle {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- টপ হেডার - মোবাইলের জন্য -->
+        <div class="top-header">
+            <div class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="logo-area">
+                <i class="fas fa-mosque"></i>
+                <span>অ্যাডমিন প্যানেল</span>
+            </div>
+            <div class="admin-profile" onclick="toggleNotifications()">
+                <div class="admin-avatar" id="adminAvatar">A</div>
+                <span class="admin-name" id="adminName">অ্যাডমিন</span>
+                <i class="fas fa-bell" style="position: relative;">
+                    <span class="badge" id="headerNotificationCount" style="position: absolute; top: -5px; right: -5px;">0</span>
+                </i>
+            </div>
+        </div>
+
+        <!-- সাইডবার -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-mosque"></i> নারায়নপুর যুব সমাজ</h3>
+                <div class="close-sidebar" onclick="toggleSidebar()">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li><a href="#" onclick="showSection('dashboard'); toggleSidebar(); return false;" class="active" id="dashboard-link"><i class="fas fa-dashboard"></i> ড্যাশবোর্ড</a></li>
+                <li><a href="#" onclick="showSection('members'); toggleSidebar(); return false;" id="members-link"><i class="fas fa-users"></i> সদস্য ব্যবস্থাপনা</a></li>
+                <li><a href="#" onclick="showSection('news'); toggleSidebar(); return false;" id="news-link"><i class="fas fa-newspaper"></i> নিউজ ব্যবস্থাপনা</a></li>
+                <li><a href="#" onclick="showSection('payments'); toggleSidebar(); return false;" id="payments-link"><i class="fas fa-hand-holding-heart"></i> পেমেন্ট ব্যবস্থাপনা <span class="badge" id="pendingPaymentsBadge">0</span></a></li>
+                <li><a href="#" onclick="showSection('donations'); toggleSidebar(); return false;" id="donations-link"><i class="fas fa-donate"></i> দান ব্যবস্থাপনা <span class="badge" id="pendingDonationsBadge">0</span></a></li>
+                <li><a href="#" onclick="showSection('payment-provider'); toggleSidebar(); return false;" id="payment-provider-link"><i class="fas fa-credit-card"></i> পেমেন্ট প্রোভাইডার</a></li>
+                <li><a href="#" onclick="showSection('events'); toggleSidebar(); return false;" id="events-link"><i class="fas fa-calendar"></i> ইভেন্ট ব্যবস্থাপনা</a></li>
+                <li><a href="#" onclick="showSection('gallery'); toggleSidebar(); return false;" id="gallery-link"><i class="fas fa-images"></i> গ্যালারি</a></li>
+                <li><a href="#" onclick="showSection('plans'); toggleSidebar(); return false;" id="plans-link"><i class="fas fa-crown"></i> মেম্বারশিপ প্ল্যান</a></li>
+                <li><a href="#" onclick="showSection('chat'); toggleSidebar(); return false;" id="chat-link"><i class="fas fa-comment"></i> লাইভ চ্যাট <span class="badge" id="chatMessagesBadge">0</span></a></li>
+                <li><a href="#" onclick="showSection('ticker'); toggleSidebar(); return false;" id="ticker-link"><i class="fas fa-ticker"></i> নিউজ টিকার</a></li>
+                <li><a href="#" onclick="showSection('notifications'); toggleSidebar(); return false;" id="notifications-link"><i class="fas fa-bell"></i> নোটিফিকেশন সেটিংস</a></li>
+                <li><a href="#" onclick="showSection('site-settings'); toggleSidebar(); return false;" id="site-settings-link"><i class="fas fa-cog"></i> সাইট সেটিংস</a></li>
+                <li><a href="#" onclick="showSection('finance'); toggleSidebar(); return false;" id="finance-link"><i class="fas fa-chart-line"></i> আর্থিক তথ্য</a></li>
+                <li><a href="#" onclick="showSection('reports'); toggleSidebar(); return false;" id="reports-link"><i class="fas fa-chart-bar"></i> রিপোর্টস</a></li>
+                <li><a href="#" onclick="logout(); return false;"><i class="fas fa-sign-out-alt"></i> লগআউট</a></li>
+            </ul>
+        </div>
+
+        <!-- ওভারলে -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- নোটিফিকেশন প্যানেল -->
+        <div class="notifications-panel" id="notificationsPanel">
+            <div class="notifications-header">
+                <h4>নোটিফিকেশন</h4>
+                <button class="btn-sm" onclick="markAllNotificationsRead()">সব পড়েছেন</button>
+            </div>
+            <div id="notificationsList">
+                <!-- নোটিফিকেশন লোড হবে -->
+            </div>
+        </div>
+
+        <!-- মূল কন্টেন্ট -->
+        <div class="main-content" id="mainContent">
+            <!-- ড্যাশবোর্ড সেকশন -->
+            <div id="dashboard-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3>মোট সদস্য</h3>
+                            <div class="stat-number" id="totalMembers">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                        <div class="stat-info">
+                            <h3>মোট পেমেন্ট</h3>
+                            <div class="stat-number" id="totalPayments">0 ৳</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-newspaper"></i></div>
+                        <div class="stat-info">
+                            <h3>মোট নিউজ</h3>
+                            <div class="stat-number" id="totalNews">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-calendar"></i></div>
+                        <div class="stat-info">
+                            <h3>চলমান ইভেন্ট</h3>
+                            <div class="stat-number" id="activeEvents">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <a href="#" class="quick-action-btn" onclick="showSection('members'); return false;">
+                        <i class="fas fa-user-plus"></i>
+                        <span>নতুন সদস্য</span>
+                    </a>
+                    <a href="#" class="quick-action-btn" onclick="showSection('news'); showAddNewsModal(); return false;">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>নতুন নিউজ</span>
+                    </a>
+                    <a href="#" class="quick-action-btn" onclick="showSection('events'); showAddEventModal(); return false;">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>নতুন ইভেন্ট</span>
+                    </a>
+                    <a href="#" class="quick-action-btn" onclick="showSection('donations'); return false;">
+                        <i class="fas fa-donate"></i>
+                        <span>দান</span>
+                    </a>
+                    <a href="#" class="quick-action-btn" onclick="showSection('gallery'); showUploadImageModal(); return false;">
+                        <i class="fas fa-camera"></i>
+                        <span>ছবি আপলোড</span>
+                    </a>
+                    <a href="#" class="quick-action-btn" onclick="showSection('reports'); return false;">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>রিপোর্ট</span>
+                    </a>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">সাম্প্রতিক কার্যক্রম</h3>
+                        <button class="btn-sm" onclick="exportActivityLog()">
+                            <i class="fas fa-download"></i> এক্সপোর্ট
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>সময়</th>
+                                    <th>ব্যবহারকারী</th>
+                                    <th>কার্যক্রম</th>
+                                    <th>বিস্তারিত</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activityLog">
+                                <!-- ডাইনামিক লোড হবে -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">অপেক্ষমান পেমেন্ট</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="pendingPaymentsTable">
+                            <thead>
+                                <tr>
+                                    <th>সদস্যের নাম</th>
+                                    <th>পরিমাণ</th>
+                                    <th>মেথড</th>
+                                    <th>তারিখ</th>
+                                    <th>অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingPaymentsBody">
+                                <!-- ডাইনামিক লোড হবে -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- সদস্য ব্যবস্থাপনা সেকশন -->
+            <div id="members-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">সদস্য তালিকা</h3>
+                        <div class="table-actions">
+                            <button class="btn-sm" onclick="exportMembers()">
+                                <i class="fas fa-download"></i> এক্সপোর্ট
+                            </button>
+                            <button class="btn-sm" onclick="sendBulkEmail()">
+                                <i class="fas fa-envelope"></i> ইমেইল
+                            </button>
+                            <button class="btn-sm" onclick="sendBulkSMS()">
+                                <i class="fas fa-sms"></i> এসএমএস
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="search-bar">
+                        <input type="text" id="memberSearch" placeholder="নাম, ইমেইল বা ফোন দ্বারা খুঁজুন..." onkeyup="searchMembers()">
+                        <select id="memberFilter" onchange="filterMembers()">
+                            <option value="all">সকল সদস্য</option>
+                            <option value="active">সক্রিয়</option>
+                            <option value="inactive">নিষ্ক্রিয়</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAllMembers" onclick="toggleSelectAll(this)"></th>
+                                    <th>নাম</th>
+                                    <th>ইমেইল</th>
+                                    <th>ফোন</th>
+                                    <th>স্ট্যাটাস</th>
+                                    <th>অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="membersTableBody">
+                                <!-- ডাইনামিক লোড হবে -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination" id="membersPagination"></div>
+                </div>
+            </div>
+
+            <!-- নিউজ ব্যবস্থাপনা সেকশন -->
+            <div id="news-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">নিউজ ব্যবস্থাপনা</h3>
+                        <button class="btn-sm" onclick="showAddNewsModal()">
+                            <i class="fas fa-plus"></i> নতুন নিউজ
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>শিরোনাম</th>
+                                    <th>ছবি</th>
+                                    <th>তারিখ</th>
+                                    <th>স্ট্যাটাস</th>
+                                    <th>অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="newsTableBody">
+                                <!-- ডাইনামিক লোড হবে -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- পেমেন্ট ব্যবস্থাপনা সেকশন -->
+            <div id="payments-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">সম্পন্ন পেমেন্ট</h3>
+                        <button class="btn-sm" onclick="exportPayments()">
+                            <i class="fas fa-download"></i> এক্সপোর্ট
+                        </button>
+                    </div>
+                    
+                    <div class="search-bar">
+                        <input type="text" id="paymentSearch" placeholder="সদস্যের নাম বা ট্রানজেকশন আইডি..." onkeyup="searchPayments()">
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>সদস্যের নাম</th>
+                                    <th>পরিমাণ</th>
+                                    <th>প্ল্যান</th>
+                                    <th>পেমেন্ট মেথড</th>
+                                    <th>তারিখ</th>
+                                    <th>স্ট্যাটাস</th>
+                                    <th>অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentsTableBody">
+                                <!-- ডাইনামিক লোড হবে -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ইভেন্ট ব্যবস্থাপনা সেকশন -->
+            <div id="events-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">ইভেন্ট তালিকা</h3>
+                        <button class="btn-sm" onclick="showAddEventModal()">
+                            <i class="fas fa-plus"></i> নতুন ইভেন্ট
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ইভেন্ট</th>
+                                    <th>তারিখ</th>
+                                    <th>সময়</th>
+                                    <th>স্থান</th>
+                                    <th>অংশগ্রহণকারী</th>
+                                    <th>অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eventsTableBody">
+                                <!-- ডাইনামিক লোড হবে -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- গ্যালারি সেকশন -->
+            <div id="gallery-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">গ্যালারি</h3>
+                        <button class="btn-sm" onclick="showUploadImageModal()">
+                            <i class="fas fa-upload"></i> ছবি আপলোড
+                        </button>
+                    </div>
+                    
+                    <div class="gallery-grid" id="adminGallery">
+                        <!-- ডাইনামিক ছবি লোড হবে -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- মেম্বারশিপ প্ল্যান সেকশন -->
+            <div id="plans-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">মেম্বারশিপ প্ল্যান</h3>
+                        <button class="btn-sm" onclick="showAddPlanModal()">
+                            <i class="fas fa-plus"></i> নতুন প্ল্যান
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>প্ল্যান নাম</th>
+                                    <th>পরিমাণ</th>
+                                    <th>আইকন</th>
+                                    <th>বিবরণ</th>
+                                    <th>অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="plansTableBody">
+                                <!-- ডাইনামিক লোড হবে -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- লাইভ চ্যাট সেকশন -->
+            <div id="chat-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">লাইভ চ্যাট</h3>
+                        <button class="btn-sm btn-danger" onclick="clearChatHistory()">
+                            <i class="fas fa-trash"></i> হিস্টোরি ক্লিয়ার
+                        </button>
+                    </div>
+                    
+                    <div id="adminChatMessages" style="height: 400px; overflow-y: auto; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                        <!-- চ্যাট মেসেজ লোড হবে -->
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <input type="text" id="adminChatInput" placeholder="মেসেজ লিখুন..." style="flex: 1; padding: 0.7rem; border: 1px solid #ddd; border-radius: 8px;">
+                        <button class="btn" onclick="sendAdminMessage()">পাঠান</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- নিউজ টিকার সেকশন -->
+            <div id="ticker-section" style="display: none;">
+                <div class="table-container">
+                    <h3 class="table-title">নিউজ টিকার কন্টেন্ট</h3>
+                    <form id="tickerForm">
+                        <div class="form-group">
+                            <label>টিকার কন্টেন্ট</label>
+                            <textarea id="tickerContent" rows="3" placeholder="নিউজ টিকারে দেখানোর কন্টেন্ট লিখুন" style="width: 100%;"></textarea>
+                        </div>
+                        <button type="submit" class="btn">আপডেট করুন</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- নোটিফিকেশন সেটিংস সেকশন -->
+            <div id="notifications-section" style="display: none;">
+                <div class="table-container">
+                    <h3 class="table-title">নোটিফিকেশন সেটিংস</h3>
+                    
+                    <form id="notificationSettingsForm">
+                        <div class="form-group">
+                            <label>ইমেইল নোটিফিকেশন</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="emailNewMember" checked>
+                                    <label for="emailNewMember">নতুন সদস্য</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="emailNewPayment" checked>
+                                    <label for="emailNewPayment">নতুন পেমেন্ট</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="emailNewEvent" checked>
+                                    <label for="emailNewEvent">নতুন ইভেন্ট</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>এসএমএস নোটিফিকেশন</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="smsPaymentReminder">
+                                    <label for="smsPaymentReminder">পেমেন্ট রিমাইন্ডার</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="smsEventReminder">
+                                    <label for="smsEventReminder">ইভেন্ট রিমাইন্ডার</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn">সেটিংস সেভ করুন</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- দান ব্যবস্থাপনা সেকশন -->
+            <div id="donations-section" style="display: none;">
+                <!-- দান অ্যানালিটিক্স কার্ড -->
+                <div class="stats-grid" style="margin-bottom:1rem;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:rgba(40,167,69,0.1);color:#28a745;"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-info">
+                            <h3>অনুমোদিত দান</h3>
+                            <div class="stat-number" id="approvedDonationsCount">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:rgba(255,193,7,0.1);color:#ffc107;"><i class="fas fa-clock"></i></div>
+                        <div class="stat-info">
+                            <h3>অপেক্ষমান</h3>
+                            <div class="stat-number" id="pendingDonationsCount">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:rgba(26,71,42,0.1);color:#1a472a;"><i class="fas fa-donate"></i></div>
+                        <div class="stat-info">
+                            <h3>মোট সংগ্রহ</h3>
+                            <div class="stat-number" id="totalDonationsAmount">0 ৳</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:rgba(220,53,69,0.1);color:#dc3545;"><i class="fas fa-times-circle"></i></div>
+                        <div class="stat-info">
+                            <h3>বাতিল</h3>
+                            <div class="stat-number" id="rejectedDonationsCount">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ম্যানুয়াল দান যোগ -->
+                <div class="table-container" style="margin-bottom:1rem;">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-plus-circle"></i> ম্যানুয়াল দান যোগ করুন</h3>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-bottom:1rem;">
+                        <div>
+                            <label style="font-size:0.85rem; color:#555; display:block; margin-bottom:0.3rem;">দাতার নাম *</label>
+                            <input type="text" id="manualDonorName" placeholder="দাতার নাম লিখুন" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem; color:#555; display:block; margin-bottom:0.3rem;">পরিমাণ (৳) *</label>
+                            <input type="number" id="manualDonationAmount" placeholder="পরিমাণ" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;" min="1">
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem; color:#555; display:block; margin-bottom:0.3rem;">পেমেন্ট মেথড</label>
+                            <select id="manualPaymentMethod" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                                <option value="cash">নগদ অর্থ</option>
+                                <option value="bkash">বিকাশ</option>
+                                <option value="nagad">নগদ</option>
+                                <option value="bank">ব্যাংক</option>
+                                <option value="other">অন্যান্য</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem; color:#555; display:block; margin-bottom:0.3rem;">নোট</label>
+                            <input type="text" id="manualDonationNote" placeholder="বিশেষ নোট (ঐচ্ছিক)" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                        </div>
+                    </div>
+                    <button class="btn btn-success" onclick="addManualDonation()">
+                        <i class="fas fa-plus"></i> ম্যানুয়াল দান যোগ করুন
+                    </button>
+                </div>
+
+                <!-- দান তালিকা -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">দান তালিকা</h3>
+                        <div class="table-actions">
+                            <select id="donationStatusFilter" onchange="loadDonations()" style="padding:0.4rem;border:1px solid #ddd;border-radius:5px;font-size:0.85rem;">
+                                <option value="all">সকল</option>
+                                <option value="pending">অপেক্ষমান</option>
+                                <option value="completed">সম্পন্ন</option>
+                                <option value="approved">অনুমোদিত</option>
+                                <option value="rejected">বাতিল</option>
+                            </select>
+                            <button class="btn btn-sm" onclick="exportDonations()"><i class="fas fa-download"></i> এক্সপোর্ট</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>দাতার নাম</th>
+                                    <th>পরিমাণ</th>
+                                    <th>মেথড</th>
+                                    <th>তারিখ</th>
+                                    <th>স্ট্যাটাস</th>
+                                    <th>অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="donationsTableBody">
+                                <tr><td colspan="6" style="text-align:center;padding:2rem;">লোড হচ্ছে...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- পেমেন্ট প্রোভাইডার সেটিংস -->
+            <div id="payment-provider-section" style="display: none;">
+                <div class="table-container" style="margin-bottom:1rem;">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-credit-card"></i> পেমেন্ট প্রোভাইডার কনফিগারেশন</h3>
+                    </div>
+                    
+                    <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:0.8rem;margin-bottom:1rem;font-size:0.85rem;">
+                        <i class="fas fa-shield-alt" style="color:#856404;"></i> <strong>সিকিউরিটি নোট:</strong> API Key এবং Secret Key নিরাপদে সংরক্ষণ করুন। কখনো শেয়ার করবেন না।
+                    </div>
+
+                    <div style="display:grid;gap:1rem;">
+                        <div>
+                            <label style="font-size:0.9rem;color:#333;font-weight:600;display:block;margin-bottom:0.4rem;">প্রোভাইডার নাম</label>
+                            <input type="text" id="providerName" placeholder="যেমন: Paymently, SSLCommerz, bKash" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.9rem;color:#333;font-weight:600;display:block;margin-bottom:0.4rem;">পেমেন্ট URL <span style="color:#dc3545;">*</span></label>
+                            <input type="url" id="providerPaymentUrl" placeholder="https://yourprovider.com/pay" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;">
+                            <small style="color:#666;font-size:0.8rem;">ইউজার এই URL-এ রিডাইরেক্ট হবে</small>
+                        </div>
+                        <div>
+                            <label style="font-size:0.9rem;color:#333;font-weight:600;display:block;margin-bottom:0.4rem;">API Key</label>
+                            <div style="position:relative;">
+                                <input type="password" id="providerApiKey" placeholder="আপনার API Key" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;padding-right:3rem;">
+                                <span onclick="toggleVisibility('providerApiKey')" style="position:absolute;right:0.8rem;top:50%;transform:translateY(-50%);cursor:pointer;color:#666;"><i class="fas fa-eye"></i></span>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-size:0.9rem;color:#333;font-weight:600;display:block;margin-bottom:0.4rem;">Secret Key</label>
+                            <div style="position:relative;">
+                                <input type="password" id="providerSecretKey" placeholder="আপনার Secret Key" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;padding-right:3rem;">
+                                <span onclick="toggleVisibility('providerSecretKey')" style="position:absolute;right:0.8rem;top:50%;transform:translateY(-50%);cursor:pointer;color:#666;"><i class="fas fa-eye"></i></span>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.8rem;padding:1rem;background:#f8f9fa;border-radius:8px;">
+                            <input type="checkbox" id="providerIsActive" style="width:18px;height:18px;cursor:pointer;">
+                            <label for="providerIsActive" style="font-weight:600;cursor:pointer;color:#333;">পেমেন্ট গেটওয়ে সক্রিয় রাখুন</label>
+                            <span id="providerStatusBadge" style="margin-left:auto;"></span>
+                        </div>
+                        <div style="display:flex;gap:0.5rem;">
+                            <button class="btn" onclick="savePaymentProvider()"><i class="fas fa-save"></i> সেটিংস সেভ করুন</button>
+                            <button class="btn btn-warning" onclick="loadPaymentProvider()"><i class="fas fa-sync"></i> রিলোড</button>
+                        </div>
+                    </div>
+
+                    <!-- বর্তমান প্রোভাইডার স্ট্যাটাস -->
+                    <div id="currentProviderStatus" style="margin-top:1.5rem;padding:1rem;background:#f8f9fa;border-radius:8px;display:none;">
+                        <h4 style="color:#1a472a;margin-bottom:0.5rem;"><i class="fas fa-info-circle"></i> বর্তমান প্রোভাইডার</h4>
+                        <p id="currentProviderInfo" style="font-size:0.9rem;"></p>
+                    </div>
+                </div>
+
+                <!-- দান অ্যানালিটিক্স চার্ট এরিয়া -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-chart-line"></i> দান বিশ্লেষণ</h3>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1rem;">
+                        <div style="background:#d4edda;border-radius:10px;padding:1rem;text-align:center;">
+                            <div style="font-size:1.8rem;font-weight:700;color:#1a472a;" id="analyticsTotal">0 ৳</div>
+                            <div style="font-size:0.85rem;color:#555;">মোট সংগৃহীত দান</div>
+                        </div>
+                        <div style="background:#cce5ff;border-radius:10px;padding:1rem;text-align:center;">
+                            <div style="font-size:1.8rem;font-weight:700;color:#004085;" id="analyticsCount">০</div>
+                            <div style="font-size:0.85rem;color:#555;">মোট দাতা সংখ্যা</div>
+                        </div>
+                        <div style="background:#fff3cd;border-radius:10px;padding:1rem;text-align:center;">
+                            <div style="font-size:1.8rem;font-weight:700;color:#856404;" id="analyticsAvg">0 ৳</div>
+                            <div style="font-size:0.85rem;color:#555;">গড় দান পরিমাণ</div>
+                        </div>
+                        <div style="background:#f8d7da;border-radius:10px;padding:1rem;text-align:center;">
+                            <div style="font-size:1.8rem;font-weight:700;color:#721c24;" id="analyticsThisMonth">0 ৳</div>
+                            <div style="font-size:0.85rem;color:#555;">এই মাসের দান</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- সাইট সেটিংস সেকশন -->
+            <div id="site-settings-section" style="display: none;">
+
+                <!-- যোগাযোগ তথ্য -->
+                <div class="table-container" style="margin-bottom:1rem;">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-address-card"></i> যোগাযোগ তথ্য সেটিংস</h3>
+                    </div>
+                    <div style="display:grid; gap:1rem;">
+                        <div>
+                            <label style="font-size:0.88rem; color:#555; font-weight:600; display:block; margin-bottom:0.3rem;"><i class="fas fa-map-marker-alt" style="color:#1a472a;"></i> ঠিকানা</label>
+                            <input type="text" id="siteAddress" placeholder="যেমন: নারায়নপুর, গুরুদাসপুর, নাটোর, বাংলাদেশ" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;font-family:'Noto Sans Bengali',sans-serif;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.88rem; color:#555; font-weight:600; display:block; margin-bottom:0.3rem;"><i class="fas fa-phone" style="color:#1a472a;"></i> ফোন নম্বর</label>
+                            <input type="text" id="sitePhone" placeholder="+৮৮০১৮৭৩০১১৭৩৬" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.88rem; color:#555; font-weight:600; display:block; margin-bottom:0.3rem;"><i class="fas fa-envelope" style="color:#1a472a;"></i> ইমেইল ঠিকানা</label>
+                            <input type="email" id="siteEmail" placeholder="example@gmail.com" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- সোশ্যাল মিডিয়া লিঙ্ক -->
+                <div class="table-container" style="margin-bottom:1rem;">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-share-alt"></i> সোশ্যাল মিডিয়া লিঙ্ক</h3>
+                    </div>
+                    <div style="display:grid; gap:1rem;">
+                        <div>
+                            <label style="font-size:0.88rem; color:#555; font-weight:600; display:block; margin-bottom:0.3rem;"><i class="fab fa-facebook-f" style="color:#1877f2;"></i> Facebook পেজ লিঙ্ক</label>
+                            <input type="url" id="siteFacebook" placeholder="https://facebook.com/yourpage" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.88rem; color:#555; font-weight:600; display:block; margin-bottom:0.3rem;"><i class="fab fa-youtube" style="color:#ff0000;"></i> YouTube চ্যানেল লিঙ্ক</label>
+                            <input type="url" id="siteYoutube" placeholder="https://youtube.com/yourchannel" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.88rem; color:#555; font-weight:600; display:block; margin-bottom:0.3rem;"><i class="fab fa-whatsapp" style="color:#25d366;"></i> WhatsApp গ্রুপ লিঙ্ক</label>
+                            <input type="url" id="siteWhatsapp" placeholder="https://wa.me/8801873011736" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.88rem; color:#555; font-weight:600; display:block; margin-bottom:0.3rem;"><i class="fab fa-telegram" style="color:#0088cc;"></i> Telegram গ্রুপ লিঙ্ক (ঐচ্ছিক)</label>
+                            <input type="url" id="siteTelegram" placeholder="https://t.me/yourgroup" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- সেভ বাটন -->
+                <div style="display:flex; gap:0.8rem;">
+                    <button class="btn" onclick="saveSiteSettings()"><i class="fas fa-save"></i> সব সেটিংস সেভ করুন</button>
+                    <button class="btn btn-warning" onclick="loadSiteSettingsAdmin()"><i class="fas fa-sync"></i> রিলোড করুন</button>
+                </div>
+
+                <!-- বর্তমান প্রিভিউ -->
+                <div id="siteSettingsPreview" style="margin-top:1.5rem; padding:1rem; background:#f8f9fa; border-radius:10px; display:none;">
+                    <h4 style="color:#1a472a; margin-bottom:0.8rem;"><i class="fas fa-eye"></i> বর্তমান সেটিংস প্রিভিউ</h4>
+                    <div id="siteSettingsPreviewContent" style="font-size:0.85rem; color:#555; line-height:1.8;"></div>
+                </div>
+            </div>
+
+
+            <!-- ===== আর্থিক তথ্য সেকশন ===== -->
+            <div id="finance-section" style="display: none;">
+
+                <!-- সারসংক্ষেপ কার্ড -->
+                <div class="stats-grid" style="margin-bottom:1rem;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:rgba(40,167,69,0.1);color:#28a745;"><i class="fas fa-arrow-up"></i></div>
+                        <div class="stat-info"><h3>মোট আয়</h3><div class="stat-number" id="finTotalIncome">0 ৳</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:rgba(220,53,69,0.1);color:#dc3545;"><i class="fas fa-arrow-down"></i></div>
+                        <div class="stat-info"><h3>মোট ব্যয়</h3><div class="stat-number" id="finTotalExpense">0 ৳</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:rgba(255,193,7,0.1);color:#856404;"><i class="fas fa-wallet"></i></div>
+                        <div class="stat-info"><h3>বর্তমান ব্যালেন্স</h3><div class="stat-number" id="finBalance">0 ৳</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:rgba(26,71,42,0.1);color:#1a472a;"><i class="fas fa-user-friends"></i></div>
+                        <div class="stat-info"><h3>স্বেচ্ছাসেবী</h3><div class="stat-number" id="finVolunteers">0</div></div>
+                    </div>
+                </div>
+
+                <!-- আর্থিক তথ্য এন্ট্রি -->
+                <div class="table-container" style="margin-bottom:1rem;">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-edit"></i> আর্থিক তথ্য আপডেট করুন</h3>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-bottom:1rem;">
+                        <div>
+                            <label style="font-size:0.85rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;"><i class="fas fa-arrow-up" style="color:#28a745;"></i> মোট আয় (৳)</label>
+                            <input type="number" id="finInputIncome" placeholder="মোট আয় পরিমাণ" min="0" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;"><i class="fas fa-arrow-down" style="color:#dc3545;"></i> মোট ব্যয় (৳)</label>
+                            <input type="number" id="finInputExpense" placeholder="মোট ব্যয় পরিমাণ" min="0" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;"><i class="fas fa-user-friends" style="color:#1a472a;"></i> স্বেচ্ছাসেবী সংখ্যা</label>
+                            <input type="number" id="finInputVolunteers" placeholder="স্বেচ্ছাসেবী সংখ্যা" min="0" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;"><i class="fas fa-sticky-note" style="color:#1a472a;"></i> নোট (ঐচ্ছিক)</label>
+                            <input type="text" id="finInputNote" placeholder="যেকোনো নোট" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:0.5rem;">
+                        <button class="btn" onclick="saveFinanceData()"><i class="fas fa-save"></i> তথ্য সেভ করুন</button>
+                        <button class="btn btn-warning" onclick="loadFinanceAdmin()"><i class="fas fa-sync"></i> রিলোড</button>
+                    </div>
+                </div>
+
+                <!-- ম্যানুয়াল দান এন্ট্রি -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-hand-holding-heart"></i> ম্যানুয়াল দান এন্ট্রি (হাতে হাতে দান)</h3>
+                    </div>
+                    <div style="background:#d4edda;border-radius:8px;padding:0.8rem;margin-bottom:1rem;font-size:0.83rem;">
+                        <i class="fas fa-info-circle" style="color:#155724;"></i> <strong>নির্দেশনা:</strong> কোনো দাতা সরাসরি সংগঠনের হাতে দান দিলে এখানে এন্ট্রি করুন। এটি তাঁর ইউজার প্রোফাইলের দান ইতিহাসে যোগ হবে।
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-bottom:1rem;">
+                        <div>
+                            <label style="font-size:0.85rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">দাতার নাম *</label>
+                            <input type="text" id="manFinDonorName" placeholder="দাতার নাম" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">পরিমাণ (৳) *</label>
+                            <input type="number" id="manFinDonorAmount" placeholder="দানের পরিমাণ" min="1" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">সদস্য User ID (থাকলে)</label>
+                            <input type="text" id="manFinUserId" placeholder="Firebase User UID (ঐচ্ছিক)" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;font-size:0.8rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">পেমেন্ট মেথড</label>
+                            <select id="manFinMethod" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;">
+                                <option value="cash">নগদ অর্থ</option>
+                                <option value="bkash">বিকাশ</option>
+                                <option value="nagad">নগদ</option>
+                                <option value="bank">ব্যাংক</option>
+                            </select>
+                        </div>
+                        <div style="grid-column:1/-1;">
+                            <label style="font-size:0.85rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">বিশেষ নোট</label>
+                            <input type="text" id="manFinNote" placeholder="যেমন: ঈদুল আযহা উপলক্ষে দান" style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:8px;">
+                        </div>
+                    </div>
+                    <button class="btn btn-success" onclick="addManualDonationFinance()">
+                        <i class="fas fa-plus-circle"></i> দান এন্ট্রি করুন
+                    </button>
+                </div>
+            </div>
+
+            <!-- রিপোর্টস সেকশন -->
+            <div id="reports-section" style="display: none;">
+                <div class="table-container">
+                    <h3 class="table-title">রিপোর্ট জেনারেট করুন</h3>
+                    
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                        <select id="reportType" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                            <option value="members">সদস্য রিপোর্ট</option>
+                            <option value="payments">পেমেন্ট রিপোর্ট</option>
+                            <option value="events">ইভেন্ট রিপোর্ট</option>
+                        </select>
+                        
+                        <input type="date" id="reportStartDate" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                        <input type="date" id="reportEndDate" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="btn-sm" onclick="generateReport('pdf')">
+                            <i class="fas fa-file-pdf"></i> পিডিএফ
+                        </button>
+                        <button class="btn-sm" onclick="generateReport('excel')">
+                            <i class="fas fa-file-excel"></i> এক্সেল
+                        </button>
+                        <button class="btn-sm" onclick="generateReport('csv')">
+                            <i class="fas fa-file-csv"></i> সিএসভি
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- মোবাইল নিচের নেভিগেশন -->
+        <div class="bottom-nav">
+            <a href="#" class="bottom-nav-item active" onclick="showSection('dashboard'); return false;">
+                <i class="fas fa-home"></i>
+                <span>হোম</span>
+            </a>
+            <a href="#" class="bottom-nav-item" onclick="showSection('members'); return false;">
+                <i class="fas fa-users"></i>
+                <span>সদস্য</span>
+            </a>
+            <a href="#" class="bottom-nav-item" onclick="showSection('payments'); return false;">
+                <i class="fas fa-money-bill"></i>
+                <span>পেমেন্ট</span>
+            </a>
+            <a href="#" class="bottom-nav-item" onclick="showSection('news'); return false;">
+                <i class="fas fa-newspaper"></i>
+                <span>নিউজ</span>
+            </a>
+            <a href="#" class="bottom-nav-item" onclick="showSection('chat'); return false;">
+                <i class="fas fa-comment"></i>
+                <span>চ্যাট</span>
+                <span class="badge" id="bottomChatBadge" style="display: none;">0</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- মডাল টেমপ্লেটস -->
+    
+    <!-- নিউজ অ্যাড মডাল -->
+    <div class="modal" id="newsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>নতুন নিউজ</h3>
+                <span class="modal-close" onclick="closeModal('newsModal')">&times;</span>
+            </div>
+            <form id="newsForm">
+                <div class="form-group">
+                    <label>শিরোনাম</label>
+                    <input type="text" id="newsTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>বিবরণ</label>
+                    <textarea id="newsDescription" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>কন্টেন্ট</label>
+                    <textarea id="newsContent" rows="5" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>ছবি URL</label>
+                    <input type="text" id="newsImage" placeholder="https://example.com/image.jpg">
+                </div>
+                <div class="form-group">
+                    <label>স্ট্যাটাস</label>
+                    <select id="newsStatus">
+                        <option value="published">প্রকাশিত</option>
+                        <option value="draft">খসড়া</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">সেভ করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ইভেন্ট অ্যাড মডাল -->
+    <div class="modal" id="eventModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>নতুন ইভেন্ট</h3>
+                <span class="modal-close" onclick="closeModal('eventModal')">&times;</span>
+            </div>
+            <form id="eventForm">
+                <div class="form-group">
+                    <label>ইভেন্টের নাম</label>
+                    <input type="text" id="eventTitle" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>তারিখ</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>সময়</label>
+                        <input type="time" id="eventTime">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>স্থান</label>
+                    <input type="text" id="eventLocation" required>
+                </div>
+                <div class="form-group">
+                    <label>বিবরণ</label>
+                    <textarea id="eventDescription" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn">সেভ করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- প্ল্যান অ্যাড মডাল -->
+    <div class="modal" id="planModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>মেম্বারশিপ প্ল্যান</h3>
+                <span class="modal-close" onclick="closeModal('planModal')">&times;</span>
+            </div>
+            <form id="planForm">
+                <div class="form-group">
+                    <label>প্ল্যানের নাম</label>
+                    <input type="text" id="planName" required>
+                </div>
+                <div class="form-group">
+                    <label>পরিমাণ (টাকা)</label>
+                    <input type="number" id="planAmount" required min="0">
+                </div>
+                <div class="form-group">
+                    <label>আইকন</label>
+                    <select id="planIcon">
+                        <option value="fa-user">সাধারণ সদস্য</option>
+                        <option value="fa-star">গোল্ড সদস্য</option>
+                        <option value="fa-crown">প্লাটিনাম সদস্য</option>
+                        <option value="fa-heart">দাতা সদস্য</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>বিবরণ</label>
+                    <textarea id="planDescription" rows="2" required></textarea>
+                </div>
+                <button type="submit" class="btn">সেভ করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ইমেইল পাঠানোর মডাল -->
+    <div class="modal" id="emailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>ইমেইল পাঠান</h3>
+                <span class="modal-close" onclick="closeModal('emailModal')">&times;</span>
+            </div>
+            <form id="emailForm">
+                <div class="form-group">
+                    <label>প্রাপক</label>
+                    <select id="emailRecipients" multiple size="3" style="width: 100%;">
+                        <!-- ডাইনামিক লোড হবে -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>বিষয়</label>
+                    <input type="text" id="emailSubject" required>
+                </div>
+                <div class="form-group">
+                    <label>মেসেজ</label>
+                    <textarea id="emailMessage" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn">পাঠান</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- স্ক্রিপ্ট লোড -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // ফায়ারবেস কনফিগারেশন (আপনার নিজের কনফিগারেশন দিন)
+        const firebaseConfig = {
+  apiKey: "AIzaSyC-3wTfnT4_2UjPb5AStVrSzTfygRw1U0I",
+  authDomain: "narayanpur-jubosomaj1.firebaseapp.com",
+  databaseURL: "https://narayanpur-jubosomaj1-default-rtdb.firebaseio.com",
+  projectId: "narayanpur-jubosomaj1",
+  storageBucket: "narayanpur-jubosomaj1.firebasestorage.app",
+  messagingSenderId: "310950396987",
+  appId: "1:310950396987:web:afee4c4949f5a1ec79c81e",
+  measurementId: "G-BJGLV6B7MG"
+};
+
+        // ফায়ারবেস ইনিশিয়ালাইজ
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // গ্লোবাল ভেরিয়েবল
+        let currentAdmin = null;
+        let selectedMembers = [];
+
+        // ==================== সাইডবার ফাংশন ====================
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        // ==================== সেকশন দেখানোর ফাংশন ====================
+        // সব সেকশন আইডির কেন্দ্রীয় তালিকা
+        const ALL_SECTIONS = [
+            'dashboard','members','news','payments','donations',
+            'payment-provider','events','gallery','plans',
+            'chat','ticker','notifications','site-settings','finance','reports'
+        ];
+
+        function showSection(section) {
+            // সব সেকশন হাইড করুন
+            ALL_SECTIONS.forEach(s => {
+                const el = document.getElementById(s + '-section');
+                if (el) el.style.display = 'none';
+            });
+            
+            // সিলেক্টেড সেকশন দেখান
+            const target = document.getElementById(section + '-section');
+            if (target) target.style.display = 'block';
+            
+            // সাইডবার মেনু আপডেট
+            document.querySelectorAll('.sidebar-menu a').forEach(link => link.classList.remove('active'));
+            document.getElementById(section + '-link')?.classList.add('active');
+            
+            // বটম নেভ আপডেট
+            document.querySelectorAll('.bottom-nav-item').forEach(item => item.classList.remove('active'));
+            
+            // ডাটা লোড করুন
+            switch(section) {
+                case 'members': loadMembers(); break;
+                case 'news': loadNews(); break;
+                case 'payments': loadPayments(); break;
+                case 'donations': loadDonations(); loadDonationStats(); break;
+                case 'payment-provider': loadPaymentProvider(); loadDonationAnalytics(); break;
+                case 'events': loadEvents(); break;
+                case 'gallery': loadAdminGallery(); break;
+                case 'plans': loadPlans(); break;
+                case 'chat': loadAdminChat(); break;
+                case 'ticker': loadTicker(); break;
+                case 'notifications': loadNotificationSettings(); break;
+                case 'site-settings': loadSiteSettingsAdmin(); break;
+                case 'finance': loadFinanceAdmin(); break;
+            }
+        }
+
+        // ==================== নোটিফিকেশন প্যানেল ====================
+        function toggleNotifications() {
+            document.getElementById('notificationsPanel').classList.toggle('active');
+        }
+
+        // ==================== অ্যাডমিন অথেনটিকেশন ====================
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                const userData = userDoc.data();
+                
+                if (!userDoc.exists || userData?.role !== 'admin') {
+                    alert('আপনার অ্যাডমিন অ্যাক্সেস নেই!');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                currentAdmin = user;
+                document.getElementById('adminName').textContent = userData.name || 'অ্যাডমিন';
+                document.getElementById('adminAvatar').textContent = (userData.name || 'A')[0];
+                
+                loadDashboardData();
+                loadNotifications();
+                
+                setInterval(() => {
+                    loadDashboardData();
+                    loadNotifications();
+                }, 30000);
+                
+            } else {
+                window.location.href = 'index.html#login';
+            }
+        });
+
+        // ==================== ড্যাশবোর্ড ডাটা লোড ====================
+        async function loadDashboardData() {
+            try {
+                const membersSnapshot = await db.collection('users').get();
+                document.getElementById('totalMembers').textContent = membersSnapshot.size;
+                
+                const paymentsSnapshot = await db.collection('payments').where('status', '==', 'completed').get();
+                let total = 0;
+                paymentsSnapshot.forEach(doc => total += doc.data().amount || 0);
+                document.getElementById('totalPayments').textContent = total + ' ৳';
+                
+                const newsSnapshot = await db.collection('news').get();
+                document.getElementById('totalNews').textContent = newsSnapshot.size;
+                
+                const eventsSnapshot = await db.collection('events').get();
+                document.getElementById('activeEvents').textContent = eventsSnapshot.size;
+                
+                const pendingSnapshot = await db.collection('payments').where('status', '==', 'pending').get();
+                document.getElementById('pendingPaymentsBadge').textContent = pendingSnapshot.size;
+                
+                loadActivityLog();
+                loadPendingPayments();
+                
+            } catch (error) {
+                console.error('ডাটা লোড করতে সমস্যা:', error);
+            }
+        }
+
+        async function loadActivityLog() {
+            try {
+                const snapshot = await db.collection('activities').orderBy('timestamp', 'desc').limit(10).get();
+                const tbody = document.getElementById('activityLog');
+                let html = '';
+                
+                snapshot.forEach(doc => {
+                    const activity = doc.data();
+                    html += `<tr>
+                        <td>${activity.timestamp?.toDate().toLocaleString('bn-BD')}</td>
+                        <td>${activity.userName || 'N/A'}</td>
+                        <td>${activity.action}</td>
+                        <td>${activity.details || ''}</td>
+                    </tr>`;
+                });
+                
+                tbody.innerHTML = html;
+            } catch (error) {
+                console.error('অ্যাক্টিভিটি লগ লোড করতে সমস্যা:', error);
+            }
+        }
+
+        async function loadPendingPayments() {
+            try {
+                const snapshot = await db.collection('payments').where('status', '==', 'pending').orderBy('createdAt', 'desc').limit(5).get();
+                const tbody = document.getElementById('pendingPaymentsBody');
+                let html = '';
+                
+                for (const doc of snapshot.docs) {
+                    const payment = doc.data();
+                    const userDoc = await db.collection('users').doc(payment.userId).get();
+                    const user = userDoc.data();
+                    
+                    html += `<tr>
+                        <td>${user?.name || 'N/A'}</td>
+                        <td>${payment.amount} ৳</td>
+                        <td>${payment.paymentMethod || 'N/A'}</td>
+                        <td>${payment.createdAt?.toDate().toLocaleString('bn-BD')}</td>
+                        <td class="action-btns">
+                            <button class="action-btn btn-approve" onclick="approvePayment('${doc.id}', '${payment.userId}')"><i class="fas fa-check"></i></button>
+                            <button class="action-btn btn-delete" onclick="rejectPayment('${doc.id}')"><i class="fas fa-times"></i></button>
+                        </td>
+                    </tr>`;
+                }
+                
+                tbody.innerHTML = html;
+            } catch (error) {
+                console.error('পেমেন্ট লোড করতে সমস্যা:', error);
+            }
+        }
+
+        // ==================== সদস্য ব্যবস্থাপনা ====================
+        async function loadMembers() {
+            try {
+                const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
+                const tbody = document.getElementById('membersTableBody');
+                let html = '';
+                
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    const status = user.status || 'active';
+                    const statusClass = status === 'active' ? 'status-active' : 'status-inactive';
+                    const statusText = status === 'active' ? 'সক্রিয়' : 'নিষ্ক্রিয়';
+                    
+                    html += `<tr>
+                        <td><input type="checkbox" class="member-checkbox" value="${doc.id}" onchange="updateSelectedMembers(this)"></td>
+                        <td>${user.name || 'N/A'}</td>
+                        <td>${user.email}</td>
+                        <td>${user.phone || 'N/A'}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td class="action-btns">
+                            <button class="action-btn btn-view" onclick="viewMember('${doc.id}')"><i class="fas fa-eye"></i></button>
+                            <button class="action-btn btn-edit" onclick="editMember('${doc.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn btn-delete" onclick="deleteMember('${doc.id}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                });
+                
+                tbody.innerHTML = html;
+            } catch (error) {
+                console.error('সদস্য লোড করতে সমস্যা:', error);
+            }
+        }
+
+        function updateSelectedMembers(checkbox) {
+            if (checkbox.checked) {
+                selectedMembers.push(checkbox.value);
+            } else {
+                selectedMembers = selectedMembers.filter(id => id !== checkbox.value);
+            }
+        }
+
+        function toggleSelectAll(checkbox) {
+            document.querySelectorAll('.member-checkbox').forEach(cb => {
+                cb.checked = checkbox.checked;
+                updateSelectedMembers(cb);
+            });
+        }
+
+        function searchMembers() {
+            const search = document.getElementById('memberSearch').value.toLowerCase();
+            document.querySelectorAll('#membersTableBody tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        function filterMembers() {
+            // ইমপ্লিমেন্ট ফিল্টার
+        }
+
+        async function deleteMember(userId) {
+            if (confirm('সদস্য ডিলিট করতে চান?')) {
+                await db.collection('users').doc(userId).delete();
+                await logActivity('সদস্য ডিলিট', `সদস্য আইডি: ${userId}`);
+                loadMembers();
+                alert('সদস্য ডিলিট হয়েছে');
+            }
+        }
+
+        // ==================== পেমেন্ট ব্যবস্থাপনা ====================
+        async function loadPayments() {
+            try {
+                const snapshot = await db.collection('payments').where('status', '==', 'completed').orderBy('createdAt', 'desc').get();
+                const tbody = document.getElementById('paymentsTableBody');
+                let html = '';
+                
+                for (const doc of snapshot.docs) {
+                    const payment = doc.data();
+                    const userDoc = await db.collection('users').doc(payment.userId).get();
+                    const user = userDoc.data();
+                    
+                    html += `<tr>
+                        <td>${user?.name || 'N/A'}</td>
+                        <td>${payment.amount} ৳</td>
+                        <td>${payment.planName || 'N/A'}</td>
+                        <td>${payment.paymentMethod || 'N/A'}</td>
+                        <td>${payment.createdAt?.toDate().toLocaleString('bn-BD')}</td>
+                        <td><span class="status-badge status-active">সম্পন্ন</span></td>
+                        <td class="action-btns">
+                            <button class="action-btn btn-view" onclick="viewPayment('${doc.id}')"><i class="fas fa-eye"></i></button>
+                        </td>
+                    </tr>`;
+                }
+                
+                tbody.innerHTML = html;
+            } catch (error) {
+                console.error('পেমেন্ট লোড করতে সমস্যা:', error);
+            }
+        }
+
+        async function approvePayment(paymentId, userId) {
+            await db.collection('payments').doc(paymentId).update({ status: 'completed' });
+            await db.collection('notifications').add({
+                userId: userId,
+                type: 'payment_approved',
+                message: 'আপনার পেমেন্ট অ্যাপ্রুভ হয়েছে',
+                read: false,
+                createdAt: new Date()
+            });
+            await logActivity('পেমেন্ট অ্যাপ্রুভ', `পেমেন্ট আইডি: ${paymentId}`);
+            loadDashboardData();
+            loadPendingPayments();
+            alert('পেমেন্ট অ্যাপ্রুভ হয়েছে');
+        }
+
+        async function rejectPayment(paymentId) {
+            if (confirm('পেমেন্ট রিজেক্ট করতে চান?')) {
+                await db.collection('payments').doc(paymentId).delete();
+                loadDashboardData();
+                loadPendingPayments();
+                alert('পেমেন্ট রিজেক্ট করা হয়েছে');
+            }
+        }
+
+        // ==================== নিউজ ব্যবস্থাপনা ====================
+        async function loadNews() {
+            try {
+                const snapshot = await db.collection('news').orderBy('createdAt', 'desc').get();
+                const tbody = document.getElementById('newsTableBody');
+                let html = '';
+                
+                snapshot.forEach(doc => {
+                    const news = doc.data();
+                    html += `<tr>
+                        <td>${news.title}</td>
+                        <td><img src="${news.image || 'https://via.placeholder.com/50'}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 5px;"></td>
+                        <td>${news.createdAt?.toDate().toLocaleDateString('bn-BD')}</td>
+                        <td><span class="status-badge ${news.status === 'published' ? 'status-active' : 'status-pending'}">${news.status === 'published' ? 'প্রকাশিত' : 'খসড়া'}</span></td>
+                        <td class="action-btns">
+                            <button class="action-btn btn-edit" onclick="editNews('${doc.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn btn-delete" onclick="deleteNews('${doc.id}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                });
+                
+                tbody.innerHTML = html;
+            } catch (error) {
+                console.error('নিউজ লোড করতে সমস্যা:', error);
+            }
+        }
+
+        function showAddNewsModal() {
+            document.getElementById('newsModal').classList.add('active');
+            document.getElementById('newsForm').reset();
+        }
+
+        document.getElementById('newsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await db.collection('news').add({
+                title: document.getElementById('newsTitle').value,
+                description: document.getElementById('newsDescription').value,
+                content: document.getElementById('newsContent').value,
+                image: document.getElementById('newsImage').value,
+                status: document.getElementById('newsStatus').value,
+                createdAt: new Date(),
+                createdBy: currentAdmin.uid
+            });
+            await logActivity('নতুন নিউজ', `শিরোনাম: ${document.getElementById('newsTitle').value}`);
+            closeModal('newsModal');
+            loadNews();
+            alert('নিউজ যোগ করা হয়েছে');
+        });
+
+        async function deleteNews(newsId) {
+            if (confirm('নিউজ ডিলিট করতে চান?')) {
+                await db.collection('news').doc(newsId).delete();
+                loadNews();
+                alert('নিউজ ডিলিট হয়েছে');
+            }
+        }
+
+        // ==================== ইভেন্ট ব্যবস্থাপনা ====================
+        async function loadEvents() {
+            try {
+                const snapshot = await db.collection('events').orderBy('date', 'desc').get();
+                const tbody = document.getElementById('eventsTableBody');
+                let html = '';
+                
+                for (const doc of snapshot.docs) {
+                    const event = doc.data();
+                    const attendees = await db.collection('eventAttendees').where('eventId', '==', doc.id).get();
+                    
+                    html += `<tr>
+                        <td>${event.title}</td>
+                        <td>${new Date(event.date).toLocaleDateString('bn-BD')}</td>
+                        <td>${event.time || 'N/A'}</td>
+                        <td>${event.location}</td>
+                        <td>${attendees.size} জন</td>
+                        <td class="action-btns">
+                            <button class="action-btn btn-edit" onclick="editEvent('${doc.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn btn-delete" onclick="deleteEvent('${doc.id}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                }
+                
+                tbody.innerHTML = html;
+            } catch (error) {
+                console.error('ইভেন্ট লোড করতে সমস্যা:', error);
+            }
+        }
+
+        function showAddEventModal() {
+            document.getElementById('eventModal').classList.add('active');
+            document.getElementById('eventForm').reset();
+        }
+
+        document.getElementById('eventForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await db.collection('events').add({
+                title: document.getElementById('eventTitle').value,
+                date: document.getElementById('eventDate').value,
+                time: document.getElementById('eventTime').value,
+                location: document.getElementById('eventLocation').value,
+                description: document.getElementById('eventDescription').value,
+                createdAt: new Date(),
+                createdBy: currentAdmin.uid
+            });
+            await logActivity('নতুন ইভেন্ট', `ইভেন্ট: ${document.getElementById('eventTitle').value}`);
+            closeModal('eventModal');
+            loadEvents();
+            alert('ইভেন্ট যোগ করা হয়েছে');
+        });
+
+        async function deleteEvent(eventId) {
+            if (confirm('ইভেন্ট ডিলিট করতে চান?')) {
+                await db.collection('events').doc(eventId).delete();
+                loadEvents();
+                alert('ইভেন্ট ডিলিট হয়েছে');
+            }
+        }
+
+        // ==================== গ্যালারি ব্যবস্থাপনা ====================
+        async function loadAdminGallery() {
+            try {
+                const snapshot = await db.collection('gallery').orderBy('createdAt', 'desc').get();
+                const galleryDiv = document.getElementById('adminGallery');
+                let html = '';
+                
+                snapshot.forEach(doc => {
+                    const image = doc.data();
+                    html += `<div class="gallery-item">
+                        <img src="${image.url}" alt="${image.title}">
+                        <div class="gallery-item-overlay">
+                            <button class="action-btn btn-delete" onclick="deleteImage('${doc.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>`;
+                });
+                
+                galleryDiv.innerHTML = html;
+            } catch (error) {
+                console.error('গ্যালারি লোড করতে সমস্যা:', error);
+            }
+        }
+
+        function showUploadImageModal() {
+            const url = prompt('ছবির URL দিন:');
+            const title = prompt('ছবির শিরোনাম দিন:');
+            if (url && title) {
+                uploadImage(url, title);
+            }
+        }
+
+        async function uploadImage(url, title) {
+            await db.collection('gallery').add({
+                url: url,
+                title: title,
+                createdAt: new Date(),
+                uploadedBy: currentAdmin.uid
+            });
+            await logActivity('ছবি আপলোড', `শিরোনাম: ${title}`);
+            loadAdminGallery();
+            alert('ছবি আপলোড হয়েছে');
+        }
+
+        async function deleteImage(imageId) {
+            if (confirm('ছবি ডিলিট করতে চান?')) {
+                await db.collection('gallery').doc(imageId).delete();
+                loadAdminGallery();
+                alert('ছবি ডিলিট হয়েছে');
+            }
+        }
+
+        // ==================== মেম্বারশিপ প্ল্যান ====================
+        async function loadPlans() {
+            try {
+                const snapshot = await db.collection('membershipPlans').orderBy('amount').get();
+                const tbody = document.getElementById('plansTableBody');
+                let html = '';
+                
+                snapshot.forEach(doc => {
+                    const plan = doc.data();
+                    html += `<tr>
+                        <td>${plan.name}</td>
+                        <td>${plan.amount} ৳</td>
+                        <td><i class="fas ${plan.icon}"></i></td>
+                        <td>${plan.description}</td>
+                        <td class="action-btns">
+                            <button class="action-btn btn-edit" onclick="editPlan('${doc.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn btn-delete" onclick="deletePlan('${doc.id}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                });
+                
+                tbody.innerHTML = html;
+            } catch (error) {
+                console.error('প্ল্যান লোড করতে সমস্যা:', error);
+            }
+        }
+
+        function showAddPlanModal() {
+            document.getElementById('planModal').classList.add('active');
+            document.getElementById('planForm').reset();
+            delete document.getElementById('planModal').dataset.editId;
+        }
+
+        document.getElementById('planForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const modal = document.getElementById('planModal');
+            const editId = modal.dataset.editId;
+            const data = {
+                name: document.getElementById('planName').value,
+                amount: parseInt(document.getElementById('planAmount').value),
+                icon: document.getElementById('planIcon').value,
+                description: document.getElementById('planDescription').value,
+            };
+            if (editId) {
+                await db.collection('membershipPlans').doc(editId).update(data);
+                await logActivity('প্ল্যান আপডেট', `প্ল্যান: ${data.name}`);
+                alert('প্ল্যান আপডেট হয়েছে');
+            } else {
+                await db.collection('membershipPlans').add({ ...data, createdAt: new Date(), createdBy: currentAdmin.uid });
+                await logActivity('নতুন প্ল্যান', `প্ল্যান: ${data.name}`);
+                alert('প্ল্যান যোগ করা হয়েছে');
+            }
+            closeModal('planModal');
+            delete modal.dataset.editId;
+            loadPlans();
+        });
+
+        async function deletePlan(planId) {
+            if (confirm('প্ল্যান ডিলিট করতে চান?')) {
+                await db.collection('membershipPlans').doc(planId).delete();
+                loadPlans();
+                alert('প্ল্যান ডিলিট হয়েছে');
+            }
+        }
+
+        // ==================== লাইভ চ্যাট ====================
+        async function loadAdminChat() {
+            try {
+                const snapshot = await db.collection('chatMessages').orderBy('timestamp', 'desc').limit(50).get();
+                const messagesDiv = document.getElementById('adminChatMessages');
+                let html = '';
+                
+                const messages = [];
+                snapshot.forEach(doc => messages.push(doc.data()));
+                messages.reverse().forEach(msg => {
+                    const isAdmin = msg.userId === currentAdmin?.uid;
+                    html += `<div class="message ${isAdmin ? 'sent' : 'received'}">
+                        <div class="message-content"><strong>${msg.userName}:</strong> ${msg.text}</div>
+                        <small>${msg.timestamp?.toDate().toLocaleString('bn-BD')}</small>
+                    </div>`;
+                });
+                
+                messagesDiv.innerHTML = html;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            } catch (error) {
+                console.error('চ্যাট লোড করতে সমস্যা:', error);
+            }
+        }
+
+        window.sendAdminMessage = async function() {
+            const input = document.getElementById('adminChatInput');
+            const text = input.value.trim();
+            if (!text) return;
+            
+            await db.collection('chatMessages').add({
+                userId: currentAdmin.uid,
+                userName: currentAdmin.displayName || 'অ্যাডমিন',
+                text: text,
+                timestamp: new Date(),
+                read: false
+            });
+            
+            input.value = '';
+            loadAdminChat();
+        };
+
+        // ==================== নিউজ টিকার ====================
+        async function loadTicker() {
+            try {
+                const snapshot = await db.collection('newsTicker').orderBy('updatedAt', 'desc').limit(1).get();
+                if (!snapshot.empty) {
+                    document.getElementById('tickerContent').value = snapshot.docs[0].data().content;
+                }
+            } catch (error) {
+                console.error('টিকার লোড করতে সমস্যা:', error);
+            }
+        }
+
+        document.getElementById('tickerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = document.getElementById('tickerContent').value;
+            
+            const oldTicker = await db.collection('newsTicker').get();
+            oldTicker.forEach(async (doc) => await db.collection('newsTicker').doc(doc.id).delete());
+            
+            await db.collection('newsTicker').add({
+                content: content,
+                updatedAt: new Date(),
+                updatedBy: currentAdmin.uid
+            });
+            
+            alert('টিকার আপডেট হয়েছে');
+        });
+
+        // ==================== পেমেন্ট প্রোভাইডার ম্যানেজমেন্ট ====================
+        async function loadPaymentProvider() {
+            try {
+                const doc = await db.collection('settings').doc('paymentProvider').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('providerName').value = data.providerName || '';
+                    document.getElementById('providerPaymentUrl').value = data.paymentUrl || '';
+                    document.getElementById('providerApiKey').value = data.apiKey || '';
+                    document.getElementById('providerSecretKey').value = data.secretKey || '';
+                    document.getElementById('providerIsActive').checked = data.isActive || false;
+                    
+                    const statusDiv = document.getElementById('currentProviderStatus');
+                    statusDiv.style.display = 'block';
+                    const badge = data.isActive ? '<span style="background:#28a745;color:white;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;">সক্রিয়</span>' : '<span style="background:#dc3545;color:white;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;">নিষ্ক্রিয়</span>';
+                    document.getElementById('currentProviderInfo').innerHTML = `
+                        প্রোভাইডার: <strong>${data.providerName || 'অজানা'}</strong> &nbsp; ${badge}<br>
+                        URL: <a href="${data.paymentUrl}" target="_blank" style="color:#1a472a;">${data.paymentUrl || '-'}</a>
+                    `;
+                }
+            } catch (error) {
+                console.error('প্রোভাইডার লোড সমস্যা:', error);
+            }
+        }
+
+        async function savePaymentProvider() {
+            const name = document.getElementById('providerName').value.trim();
+            const url = document.getElementById('providerPaymentUrl').value.trim();
+            const apiKey = document.getElementById('providerApiKey').value.trim();
+            const secretKey = document.getElementById('providerSecretKey').value.trim();
+            const isActive = document.getElementById('providerIsActive').checked;
+
+            if (!url) {
+                alert('পেমেন্ট URL দেওয়া বাধ্যতামূলক!');
+                return;
+            }
+
+            try {
+                await db.collection('settings').doc('paymentProvider').set({
+                    providerName: name,
+                    paymentUrl: url,
+                    apiKey: apiKey,
+                    secretKey: secretKey,
+                    isActive: isActive,
+                    updatedAt: new Date(),
+                    updatedBy: currentAdmin.uid
+                });
+                
+                await logActivity('পেমেন্ট প্রোভাইডার আপডেট', `প্রোভাইডার: ${name}, সক্রিয়: ${isActive}`);
+                alert('পেমেন্ট প্রোভাইডার সেটিংস সেভ হয়েছে!');
+                loadPaymentProvider();
+                loadDonationAnalytics();
+            } catch (error) {
+                alert('সেভ করতে সমস্যা: ' + error.message);
+            }
+        }
+
+        function toggleVisibility(fieldId) {
+            const input = document.getElementById(fieldId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        // ==================== দান ব্যবস্থাপনা ====================
+        async function loadDonations() {
+            const tbody = document.getElementById('donationsTableBody');
+            const filter = document.getElementById('donationStatusFilter')?.value || 'all';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;">লোড হচ্ছে...</td></tr>';
+
+            try {
+                let query = db.collection('donations').orderBy('createdAt', 'desc').limit(50);
+                if (filter !== 'all') {
+                    query = db.collection('donations').where('status', '==', filter).orderBy('createdAt', 'desc').limit(50);
+                }
+
+                const snapshot = await query.get();
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;">কোনো দান পাওয়া যায়নি</td></tr>';
+                    return;
+                }
+
+                let html = '';
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    const date = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString('bn-BD') : '-';
+                    let statusBadge = '';
+                    if (d.status === 'completed' || d.status === 'approved') {
+                        statusBadge = '<span class="status-badge status-active">অনুমোদিত</span>';
+                    } else if (d.status === 'pending') {
+                        statusBadge = '<span class="status-badge status-pending">অপেক্ষমান</span>';
+                    } else {
+                        statusBadge = '<span class="status-badge status-inactive">বাতিল</span>';
+                    }
+
+                    const methodMap = {cash:'নগদ', bkash:'বিকাশ', nagad:'নগদ', bank:'ব্যাংক', online:'অনলাইন', other:'অন্যান্য'};
+                    const method = methodMap[d.provider] || d.provider || '-';
+
+                    html += `<tr>
+                        <td><strong>${d.donorName || 'বেনামী'}</strong>${d.note ? '<br><small style="color:#888;">' + d.note + '</small>' : ''}</td>
+                        <td><strong style="color:#1a472a;">${(d.amount || 0).toLocaleString()} ৳</strong></td>
+                        <td>${method}</td>
+                        <td>${date}</td>
+                        <td>${statusBadge}</td>
+                        <td class="action-btns">
+                            ${d.status === 'pending' ? `
+                                <button class="action-btn btn-approve" onclick="updateDonationStatus('${doc.id}', 'approved')" title="অনুমোদন"><i class="fas fa-check"></i></button>
+                                <button class="action-btn btn-delete" onclick="updateDonationStatus('${doc.id}', 'rejected')" title="বাতিল"><i class="fas fa-times"></i></button>
+                            ` : ''}
+                            <button class="action-btn btn-delete" onclick="deleteDonation('${doc.id}')" title="মুছুন"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                });
+
+                tbody.innerHTML = html;
+                loadDonationStats();
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:red;">লোড করতে সমস্যা হয়েছে</td></tr>';
+                console.error(error);
+            }
+        }
+
+        async function updateDonationStatus(donationId, status) {
+            const action = status === 'approved' ? 'অনুমোদন করতে' : 'বাতিল করতে';
+            if (!confirm(`এই দানটি ${action} চান?`)) return;
+            try {
+                await db.collection('donations').doc(donationId).update({ 
+                    status: status,
+                    updatedAt: new Date(),
+                    updatedBy: currentAdmin.uid
+                });
+                await logActivity('দান আপডেট', `ID: ${donationId}, স্ট্যাটাস: ${status}`);
+                loadDonations();
+                loadDonationAnalytics();
+            } catch (error) {
+                alert('আপডেট সমস্যা: ' + error.message);
+            }
+        }
+
+        async function deleteDonation(donationId) {
+            if (!confirm('এই দান রেকর্ডটি স্থায়ীভাবে মুছে ফেলতে চান?')) return;
+            try {
+                await db.collection('donations').doc(donationId).delete();
+                loadDonations();
+            } catch (error) {
+                alert('মুছতে সমস্যা: ' + error.message);
+            }
+        }
+
+        async function addManualDonation() {
+            const name = document.getElementById('manualDonorName').value.trim();
+            const amount = parseInt(document.getElementById('manualDonationAmount').value);
+            const method = document.getElementById('manualPaymentMethod').value;
+            const note = document.getElementById('manualDonationNote').value.trim();
+
+            if (!name || !amount || amount < 1) {
+                alert('দাতার নাম ও পরিমাণ দেওয়া বাধ্যতামূলক!');
+                return;
+            }
+
+            try {
+                await db.collection('donations').add({
+                    donorName: name,
+                    amount: amount,
+                    provider: method,
+                    note: note,
+                    status: 'approved',
+                    isManual: true,
+                    userId: null,
+                    createdAt: new Date(),
+                    addedBy: currentAdmin.uid
+                });
+
+                document.getElementById('manualDonorName').value = '';
+                document.getElementById('manualDonationAmount').value = '';
+                document.getElementById('manualDonationNote').value = '';
+
+                await logActivity('ম্যানুয়াল দান', `দাতা: ${name}, পরিমাণ: ${amount} ৳`);
+                alert('ম্যানুয়াল দান সফলভাবে যোগ হয়েছে!');
+                loadDonations();
+                loadDonationAnalytics();
+            } catch (error) {
+                alert('যোগ করতে সমস্যা: ' + error.message);
+            }
+        }
+
+        async function loadDonationStats() {
+            try {
+                const allDonations = await db.collection('donations').get();
+                let approved = 0, pending = 0, rejected = 0, total = 0;
+                
+                allDonations.forEach(doc => {
+                    const d = doc.data();
+                    if (d.status === 'approved' || d.status === 'completed') { approved++; total += d.amount || 0; }
+                    else if (d.status === 'pending') pending++;
+                    else if (d.status === 'rejected') rejected++;
+                });
+
+                const safeSet = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+                safeSet('approvedDonationsCount', approved);
+                safeSet('pendingDonationsCount', pending);
+                safeSet('rejectedDonationsCount', rejected);
+                safeSet('totalDonationsAmount', total.toLocaleString() + ' ৳');
+                safeSet('pendingDonationsBadge', pending);
+
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadDonationAnalytics() {
+            try {
+                const snapshot = await db.collection('donations')
+                    .where('status', 'in', ['approved', 'completed']).get();
+                
+                let total = 0, count = 0, thisMonth = 0;
+                const now = new Date();
+                
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    total += d.amount || 0;
+                    count++;
+                    if (d.createdAt?.toDate) {
+                        const dt = d.createdAt.toDate();
+                        if (dt.getMonth() === now.getMonth() && dt.getFullYear() === now.getFullYear()) {
+                            thisMonth += d.amount || 0;
+                        }
+                    }
+                });
+
+                const safeSet = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+                safeSet('analyticsTotal', total.toLocaleString() + ' ৳');
+                safeSet('analyticsCount', count);
+                safeSet('analyticsAvg', count > 0 ? Math.round(total/count).toLocaleString() + ' ৳' : '0 ৳');
+                safeSet('analyticsThisMonth', thisMonth.toLocaleString() + ' ৳');
+            } catch(e) { console.error(e); }
+        }
+
+        function exportDonations() {
+            alert('দান এক্সপোর্ট ফিচার শীঘ্রই আসছে');
+        }
+
+
+
+        // ==================== আর্থিক তথ্য ম্যানেজমেন্ট ====================
+        async function loadFinanceAdmin() {
+            try {
+                const doc = await db.collection('settings').doc('finance').get();
+                const el = id => document.getElementById(id);
+                if (doc.exists) {
+                    const d = doc.data();
+                    const income  = d.totalIncome  || 0;
+                    const expense = d.totalExpense || 0;
+                    const balance = income - expense;
+                    const vols    = d.totalVolunteers || 0;
+
+                    if(el('finTotalIncome'))  el('finTotalIncome').textContent  = income.toLocaleString() + ' ৳';
+                    if(el('finTotalExpense')) el('finTotalExpense').textContent = expense.toLocaleString() + ' ৳';
+                    if(el('finBalance')) {
+                        el('finBalance').textContent  = balance.toLocaleString() + ' ৳';
+                        el('finBalance').style.color  = balance >= 0 ? '#28a745' : '#dc3545';
+                    }
+                    if(el('finVolunteers')) el('finVolunteers').textContent = vols;
+
+                    // input ফিল্ড আপডেট
+                    if(el('finInputIncome'))     el('finInputIncome').value     = income;
+                    if(el('finInputExpense'))    el('finInputExpense').value    = expense;
+                    if(el('finInputVolunteers')) el('finInputVolunteers').value = vols;
+                    if(el('finInputNote') && d.note) el('finInputNote').value  = d.note;
+                }
+            } catch(e) { console.error('আর্থিক তথ্য লোড সমস্যা:', e); }
+        }
+
+        async function saveFinanceData() {
+            const getNum = id => { const el = document.getElementById(id); return el ? (parseFloat(el.value) || 0) : 0; };
+            const getStr = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+            const income    = getNum('finInputIncome');
+            const expense   = getNum('finInputExpense');
+            const volunteers = getNum('finInputVolunteers');
+            const note      = getStr('finInputNote');
+
+            try {
+                await db.collection('settings').doc('finance').set({
+                    totalIncome:      income,
+                    totalExpense:     expense,
+                    totalVolunteers:  volunteers,
+                    note:             note,
+                    updatedAt:        new Date(),
+                    updatedBy:        currentAdmin ? currentAdmin.uid : 'admin'
+                }, { merge: true });
+                await logActivity('আর্থিক তথ্য আপডেট', `আয়: ${income} ৳, ব্যয়: ${expense} ৳`);
+                alert('✅ আর্থিক তথ্য সেভ হয়েছে!');
+                loadFinanceAdmin();
+            } catch(e) { alert('সেভ সমস্যা: ' + e.message); }
+        }
+
+        async function addManualDonationFinance() {
+            const name   = document.getElementById('manFinDonorName')?.value?.trim();
+            const amount = parseFloat(document.getElementById('manFinDonorAmount')?.value);
+            const uid    = document.getElementById('manFinUserId')?.value?.trim();
+            const method = document.getElementById('manFinMethod')?.value;
+            const note   = document.getElementById('manFinNote')?.value?.trim();
+
+            if (!name || !amount || amount < 1) {
+                alert('দাতার নাম ও পরিমাণ দেওয়া বাধ্যতামূলক!');
+                return;
+            }
+
+            try {
+                // donations collection এ যোগ করুন
+                await db.collection('donations').add({
+                    donorName:  name,
+                    amount:     amount,
+                    provider:   method,
+                    note:       note || '',
+                    status:     'approved',
+                    isManual:   true,
+                    userId:     uid || null,
+                    userEmail:  null,
+                    createdAt:  new Date(),
+                    addedBy:    currentAdmin ? currentAdmin.uid : 'admin'
+                });
+
+                // ইনপুট ক্লিয়ার
+                ['manFinDonorName','manFinDonorAmount','manFinUserId','manFinNote'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) el.value = '';
+                });
+
+                await logActivity('ম্যানুয়াল দান এন্ট্রি', `দাতা: ${name}, পরিমাণ: ${amount} ৳, মেথড: ${method}`);
+                alert(`✅ ${name} এর ${amount} ৳ দান এন্ট্রি সফল!\nতাঁর দান ইতিহাসে দেখাবে।`);
+            } catch(e) { alert('এন্ট্রি সমস্যা: ' + e.message); }
+        }
+
+        // ==================== পাসওয়ার্ড দেখানো (admin লগইন) ====================
+        function toggleAdminPass(fieldId, iconEl) {
+            const input = document.getElementById(fieldId);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                iconEl.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                iconEl.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        }
+
+        // ==================== সাইট সেটিংস ====================
+        async function loadSiteSettingsAdmin() {
+            try {
+                const doc = await db.collection('settings').doc('siteInfo').get();
+                if (doc.exists) {
+                    const d = doc.data();
+                    const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+                    setVal('siteAddress',  d.address);
+                    setVal('sitePhone',    d.phone);
+                    setVal('siteEmail',    d.email);
+                    setVal('siteFacebook', d.facebook);
+                    setVal('siteYoutube',  d.youtube);
+                    setVal('siteWhatsapp', d.whatsapp);
+                    setVal('siteTelegram', d.telegram);
+
+                    // প্রিভিউ দেখাও
+                    const preview = document.getElementById('siteSettingsPreview');
+                    const previewContent = document.getElementById('siteSettingsPreviewContent');
+                    if (preview && previewContent) {
+                        preview.style.display = 'block';
+                        previewContent.innerHTML = `
+                            <div><i class="fas fa-map-marker-alt" style="color:#1a472a; width:18px;"></i> <strong>ঠিকানা:</strong> ${d.address || '—'}</div>
+                            <div><i class="fas fa-phone" style="color:#1a472a; width:18px;"></i> <strong>ফোন:</strong> ${d.phone || '—'}</div>
+                            <div><i class="fas fa-envelope" style="color:#1a472a; width:18px;"></i> <strong>ইমেইল:</strong> ${d.email || '—'}</div>
+                            <div><i class="fab fa-facebook-f" style="color:#1877f2; width:18px;"></i> <strong>Facebook:</strong> ${d.facebook ? '<a href="'+d.facebook+'" target="_blank" style="color:#1877f2;">লিঙ্ক দেখুন</a>' : '—'}</div>
+                            <div><i class="fab fa-youtube" style="color:#ff0000; width:18px;"></i> <strong>YouTube:</strong> ${d.youtube ? '<a href="'+d.youtube+'" target="_blank" style="color:#ff0000;">লিঙ্ক দেখুন</a>' : '—'}</div>
+                            <div><i class="fab fa-whatsapp" style="color:#25d366; width:18px;"></i> <strong>WhatsApp:</strong> ${d.whatsapp ? '<a href="'+d.whatsapp+'" target="_blank" style="color:#25d366;">লিঙ্ক দেখুন</a>' : '—'}</div>
+                        `;
+                    }
+                }
+            } catch(e) { console.error('সাইট সেটিংস লোড সমস্যা:', e); }
+        }
+
+        async function saveSiteSettings() {
+            const getVal = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+            const data = {
+                address:  getVal('siteAddress'),
+                phone:    getVal('sitePhone'),
+                email:    getVal('siteEmail'),
+                facebook: getVal('siteFacebook'),
+                youtube:  getVal('siteYoutube'),
+                whatsapp: getVal('siteWhatsapp'),
+                telegram: getVal('siteTelegram'),
+                updatedAt: new Date(),
+                updatedBy: currentAdmin ? currentAdmin.uid : 'admin'
+            };
+
+            if (!data.address && !data.phone && !data.email) {
+                alert('অন্তত ঠিকানা, ফোন বা ইমেইল একটি দিন!');
+                return;
+            }
+
+            try {
+                await db.collection('settings').doc('siteInfo').set(data, { merge: true });
+                await logActivity('সাইট সেটিংস আপডেট', `ঠিকানা: ${data.address}, ফোন: ${data.phone}`);
+                alert('✅ সাইট সেটিংস সফলভাবে সেভ হয়েছে!\nওয়েবসাইটে তাৎক্ষণিক প্রতিফলিত হবে।');
+                loadSiteSettingsAdmin();
+            } catch(e) {
+                alert('সেভ করতে সমস্যা: ' + e.message);
+            }
+        }
+
+        // ==================== নোটিফিকেশন সেটিংস ====================
+        async function loadNotificationSettings() {
+            try {
+                const settingsDoc = await db.collection('settings').doc('notifications').get();
+                if (settingsDoc.exists) {
+                    const settings = settingsDoc.data();
+                    document.getElementById('emailNewMember').checked = settings.emailNewMember || false;
+                    document.getElementById('emailNewPayment').checked = settings.emailNewPayment || false;
+                    document.getElementById('emailNewEvent').checked = settings.emailNewEvent || false;
+                    document.getElementById('smsPaymentReminder').checked = settings.smsPaymentReminder || false;
+                    document.getElementById('smsEventReminder').checked = settings.smsEventReminder || false;
+                }
+            } catch (error) {
+                console.error('সেটিংস লোড করতে সমস্যা:', error);
+            }
+        }
+
+        document.getElementById('notificationSettingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await db.collection('settings').doc('notifications').set({
+                emailNewMember: document.getElementById('emailNewMember').checked,
+                emailNewPayment: document.getElementById('emailNewPayment').checked,
+                emailNewEvent: document.getElementById('emailNewEvent').checked,
+                smsPaymentReminder: document.getElementById('smsPaymentReminder').checked,
+                smsEventReminder: document.getElementById('smsEventReminder').checked,
+                updatedAt: new Date(),
+                updatedBy: currentAdmin.uid
+            });
+            alert('সেটিংস সেভ করা হয়েছে');
+        });
+
+        // ==================== নোটিফিকেশন ====================
+        async function loadNotifications() {
+            try {
+                const snapshot = await db.collection('notifications').where('read', '==', false).get();
+                document.getElementById('headerNotificationCount').textContent = snapshot.size;
+                
+                const listDiv = document.getElementById('notificationsList');
+                let html = '';
+                
+                snapshot.forEach(doc => {
+                    const notif = doc.data();
+                    html += `<div class="notification-item unread" onclick="markNotificationRead('${doc.id}')">
+                        <strong>${notif.type}</strong>
+                        <p>${notif.message}</p>
+                        <small>${new Date(notif.createdAt).toLocaleString('bn-BD')}</small>
+                    </div>`;
+                });
+                
+                listDiv.innerHTML = html || '<div style="padding: 1rem; text-align: center;">কোন নোটিফিকেশন নেই</div>';
+            } catch (error) {
+                console.error('নোটিফিকেশন লোড করতে সমস্যা:', error);
+            }
+        }
+
+        async function markNotificationRead(id) {
+            await db.collection('notifications').doc(id).update({ read: true });
+            loadNotifications();
+        }
+
+        async function markAllNotificationsRead() {
+            const unread = await db.collection('notifications').where('read', '==', false).get();
+            unread.forEach(async (doc) => await db.collection('notifications').doc(doc.id).update({ read: true }));
+            loadNotifications();
+            alert('সব নোটিফিকেশন পড়া হয়েছে');
+        }
+
+        // ==================== ইউটিলিটি ফাংশন ====================
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        async function logActivity(action, details) {
+            await db.collection('activities').add({
+                userId: currentAdmin.uid,
+                userName: currentAdmin.displayName || 'অ্যাডমিন',
+                action: action,
+                details: details,
+                timestamp: new Date()
+            });
+        }
+
+        function exportMembers() {
+            alert('এক্সপোর্ট ফিচার শীঘ্রই আসছে');
+        }
+
+        function exportPayments() {
+            alert('এক্সপোর্ট ফিচার শীঘ্রই আসছে');
+        }
+
+        function exportActivityLog() {
+            alert('এক্সপোর্ট ফিচার শীঘ্রই আসছে');
+        }
+
+        function generateReport() {
+            alert('রিপোর্ট জেনারেট ফিচার শীঘ্রই আসছে');
+        }
+
+        function searchPayments() {
+            const val = document.getElementById('paymentSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#paymentsTableBody tr');
+            rows.forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(val) ? '' : 'none';
+            });
+        }
+
+        async function clearChatHistory() {
+            if (!confirm('সকল চ্যাট মেসেজ মুছে ফেলতে চান?')) return;
+            try {
+                const snapshot = await db.collection('chatMessages').get();
+                const batch = db.batch();
+                snapshot.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+                loadAdminChat();
+                alert('চ্যাট হিস্টোরি মুছা হয়েছে');
+            } catch(e) { alert('সমস্যা: ' + e.message); }
+        }
+
+        async function sendBulkEmail() {
+            alert('বাল্ক ইমেইল ফিচার শীঘ্রই আসছে');
+        }
+
+        async function sendBulkSMS() {
+            alert('বাল্ক SMS ফিচার শীঘ্রই আসছে');
+        }
+
+        async function editPlan(planId) {
+            const doc = await db.collection('membershipPlans').doc(planId).get();
+            if (!doc.exists) return;
+            const plan = doc.data();
+            document.getElementById('planName').value = plan.name || '';
+            document.getElementById('planAmount').value = plan.amount || '';
+            document.getElementById('planIcon').value = plan.icon || 'fa-user';
+            document.getElementById('planDescription').value = plan.description || '';
+            // Store edit ID
+            document.getElementById('planModal').dataset.editId = planId;
+            document.getElementById('planModal').classList.add('active');
+        }
+
+        function logout() {
+            auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        // উইন্ডো ক্লিক ইভেন্ট
+        window.onclick = function(event) {
+            if (!event.target.closest('.notifications-panel') && !event.target.closest('.admin-profile')) {
+                document.getElementById('notificationsPanel').classList.remove('active');
+            }
+        };
+    </script>
+</body>
+</html>)
