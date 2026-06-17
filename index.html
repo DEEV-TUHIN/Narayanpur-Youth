@@ -1173,6 +1173,31 @@
 
             <!-- নিউজ টিকার সেকশন -->
             <div id="ticker-section" style="display: none;">
+
+                <!-- Speed & Smoothness Control -->
+                <div class="table-container" style="margin-bottom:1rem;">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-tachometer-alt"></i> টিকার গতি নিয়ন্ত্রণ</h3>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                        <div>
+                            <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:0.5rem;">
+                                গতি: <span id="speedVal">১.২</span> px/frame
+                            </label>
+                            <input type="range" id="tickerSpeedRange" min="0.3" max="4" step="0.1" value="1.2"
+                                oninput="updateTickerSpeedPreview(this.value)"
+                                style="width:100%;accent-color:#1a472a;">
+                            <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:#888;margin-top:0.2rem;">
+                                <span>ধীর</span><span>মাঝারি</span><span>দ্রুত</span>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;">
+                            <button class="btn" onclick="saveTickerSpeed()"><i class="fas fa-save"></i> গতি সেভ করুন</button>
+                            <small style="color:#888;font-size:0.78rem;">সেভ করলে ওয়েবসাইটে তাৎক্ষণিক প্রতিফলিত হবে</small>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="table-container">
                     <h3 class="table-title">নিউজ টিকার কন্টেন্ট</h3>
                     <form id="tickerForm">
@@ -1956,7 +1981,7 @@
                 case 'gallery': loadAdminGallery(); break;
                 case 'plans': loadPlans(); break;
                 case 'chat': loadAdminChat(); break;
-                case 'ticker': loadTicker(); break;
+                case 'ticker': loadTicker(); loadTickerWithSpeed(); break;
                 case 'notifications': loadNotificationSettings(); break;
                 case 'site-settings': loadSiteSettingsAdmin(); break;
                 case 'finance': loadFinanceAdmin(); break;
@@ -3181,6 +3206,48 @@ Firebase Console → Firestore → users → আপনার UID → role: "admi
                 details: details,
                 timestamp: new Date()
             });
+        }
+
+        // ===== Ticker Speed Control =====
+        function updateTickerSpeedPreview(val) {
+            const el = document.getElementById('speedVal');
+            if (el) el.textContent = parseFloat(val).toFixed(1);
+            // Live preview — index এ চললে window._tickerSpeed আপডেট
+            try { window.opener && (window.opener._tickerSpeed = parseFloat(val)); } catch(e) {}
+        }
+
+        async function saveTickerSpeed() {
+            const val = parseFloat(document.getElementById('tickerSpeedRange')?.value || 1.2);
+            try {
+                // newsTicker collection এর latest doc এ speed সেভ করি
+                const snap = await db.collection('newsTicker').orderBy('updatedAt','desc').limit(1).get();
+                if (!snap.empty) {
+                    await snap.docs[0].ref.update({ speed: val, updatedAt: new Date() });
+                } else {
+                    await db.collection('newsTicker').add({
+                        content: 'নারায়নপুর ইসলামী আইডিয়াল যুব সমাজে স্বাগতম!',
+                        speed: val,
+                        updatedAt: new Date()
+                    });
+                }
+                await logActivity('টিকার গতি পরিবর্তন', `গতি: ${val}`);
+                alert(`✅ টিকার গতি ${val} সেভ হয়েছে!`);
+            } catch(e) { alert('সমস্যা: ' + e.message); }
+        }
+
+        async function loadTickerWithSpeed() {
+            try {
+                const snap = await db.collection('newsTicker').orderBy('updatedAt','desc').limit(1).get();
+                if (!snap.empty) {
+                    const d = snap.docs[0].data();
+                    if (d.speed) {
+                        const range = document.getElementById('tickerSpeedRange');
+                        const label = document.getElementById('speedVal');
+                        if (range) range.value = d.speed;
+                        if (label) label.textContent = parseFloat(d.speed).toFixed(1);
+                    }
+                }
+            } catch(e) {}
         }
 
         function exportMembers() {
