@@ -1973,30 +1973,54 @@
 
         // ==================== অ্যাডমিন অথেনটিকেশন ====================
         auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                const userData = userDoc.data();
-                
-                if (!userDoc.exists || userData?.role !== 'admin') {
-                    alert('আপনার অ্যাডমিন অ্যাক্সেস নেই!');
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                let userDoc = await db.collection('users').doc(user.uid).get();
+
+                // Firestore collection ডিলিট হলে — restore করো
+                if (!userDoc.exists) {
+                    console.warn('User doc missing — restoring...');
+                    await db.collection('users').doc(user.uid).set({
+                        name:  user.displayName || user.email.split('@')[0],
+                        email: user.email,
+                        phone: '',
+                        role:  'member', // default member, manually set admin in Firestore
+                        isActive: true,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        uid: user.uid,
+                        restoredAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    userDoc = await db.collection('users').doc(user.uid).get();
+                }
+
+                const userData = userDoc.data() || {};
+
+                if (userData.role !== 'admin') {
+                    alert('এই অ্যাকাউন্টে এডমিন অ্যাক্সেস নেই!
+
+Firebase Console → Firestore → users → আপনার UID → role: "admin" সেট করুন।');
                     window.location.href = 'index.html';
                     return;
                 }
-                
+
                 currentAdmin = user;
-                document.getElementById('adminName').textContent = userData.name || 'অ্যাডমিন';
-                document.getElementById('adminAvatar').textContent = (userData.name || 'A')[0];
-                
+                const name = userData.name || user.displayName || 'এডমিন';
+                document.getElementById('adminName').textContent = name;
+                document.getElementById('adminAvatar').textContent = name[0].toUpperCase();
+
                 loadDashboardData();
                 loadNotifications();
-                
-                setInterval(() => {
-                    loadDashboardData();
-                    loadNotifications();
-                }, 30000);
-                
-            } else {
-                window.location.href = 'index.html#login';
+
+                // Auto refresh প্রতি ৩০ সেকেন্ডে
+                setInterval(() => { loadDashboardData(); loadNotifications(); }, 30000);
+
+            } catch(e) {
+                console.error('Admin auth error:', e);
+                alert('সংযোগ সমস্যা: ' + e.message);
             }
         });
 
