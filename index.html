@@ -2024,9 +2024,7 @@
                 const userData = userDoc.data() || {};
 
                 if (userData.role !== 'admin') {
-                    alert('এই অ্যাকাউন্টে এডমিন অ্যাক্সেস নেই!
-
-Firebase Console → Firestore → users → আপনার UID → role: "admin" সেট করুন।');
+                    alert('এই অ্যাকাউন্টে এডমিন অ্যাক্সেস নেই!\n\nFirebase Console → Firestore → users → আপনার UID → role: "admin" সেট করুন।');
                     window.location.href = 'index.html';
                     return;
                 }
