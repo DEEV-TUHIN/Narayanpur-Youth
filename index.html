@@ -2869,22 +2869,35 @@
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;">লোড হচ্ছে...</td></tr>';
 
             try {
-                let query = db.collection('donations').orderBy('createdAt', 'desc').limit(50);
+                // orderBy বাদ — mixed Timestamp/string createdAt থাকলে crash হয়, client-side sort করছি
+                let query = db.collection('donations').limit(100);
                 if (filter !== 'all') {
-                    query = db.collection('donations').where('status', '==', filter).orderBy('createdAt', 'desc').limit(50);
+                    query = db.collection('donations').where('status', '==', filter).limit(100);
                 }
 
                 const snapshot = await query.get();
-                
+
                 if (snapshot.empty) {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;">কোনো দান পাওয়া যায়নি</td></tr>';
                     return;
                 }
 
-                let html = '';
+                // ডেটা সংগ্রহ + sort (নতুন আগে)
+                let rows = [];
                 snapshot.forEach(doc => {
                     const d = doc.data();
-                    const date = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString('bn-BD') : '-';
+                    let dateObj;
+                    if (d.createdAt?.toDate) dateObj = d.createdAt.toDate();
+                    else if (typeof d.createdAt === 'string') dateObj = new Date(d.createdAt);
+                    else dateObj = new Date(0);
+                    rows.push({ id: doc.id, data: d, dateObj });
+                });
+                rows.sort((a, b) => b.dateObj - a.dateObj);
+                rows = rows.slice(0, 50);
+
+                let html = '';
+                rows.forEach(({ id, data: d, dateObj }) => {
+                    const date = dateObj.getTime() > 0 ? dateObj.toLocaleDateString('bn-BD') : '-';
                     let statusBadge = '';
                     if (d.status === 'completed' || d.status === 'approved') {
                         statusBadge = '<span class="status-badge status-active">অনুমোদিত</span>';
@@ -2905,10 +2918,10 @@
                         <td>${statusBadge}</td>
                         <td class="action-btns">
                             ${d.status === 'pending' ? `
-                                <button class="action-btn btn-approve" onclick="updateDonationStatus('${doc.id}', 'approved')" title="অনুমোদন"><i class="fas fa-check"></i></button>
-                                <button class="action-btn btn-delete" onclick="updateDonationStatus('${doc.id}', 'rejected')" title="বাতিল"><i class="fas fa-times"></i></button>
+                                <button class="action-btn btn-approve" onclick="updateDonationStatus('${id}', 'approved')" title="অনুমোদন"><i class="fas fa-check"></i></button>
+                                <button class="action-btn btn-delete" onclick="updateDonationStatus('${id}', 'rejected')" title="বাতিল"><i class="fas fa-times"></i></button>
                             ` : ''}
-                            <button class="action-btn btn-delete" onclick="deleteDonation('${doc.id}')" title="মুছুন"><i class="fas fa-trash"></i></button>
+                            <button class="action-btn btn-delete" onclick="deleteDonation('${id}')" title="মুছুন"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>`;
                 });
@@ -2917,7 +2930,7 @@
                 loadDonationStats();
             } catch (error) {
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:red;">লোড করতে সমস্যা হয়েছে</td></tr>';
-                console.error(error);
+                console.error('loadDonations error:', error);
             }
         }
 
@@ -3466,13 +3479,18 @@
         }
 
         async function logActivity(action, details) {
-            await db.collection('activities').add({
-                userId: currentAdmin.uid,
-                userName: currentAdmin.displayName || 'অ্যাডমিন',
-                action: action,
-                details: details,
-                timestamp: new Date()
-            });
+            // Activity log fail হলেও মূল কাজ (donation, news, ইত্যাদি) বন্ধ হবে না
+            try {
+                await db.collection('activities').add({
+                    userId: currentAdmin.uid,
+                    userName: currentAdmin.displayName || 'অ্যাডমিন',
+                    action: action,
+                    details: details,
+                    timestamp: new Date().toISOString()
+                });
+            } catch (e) {
+                console.warn('logActivity failed (non-critical):', e.message);
+            }
         }
 
         // ===== Ticker Speed Control =====
