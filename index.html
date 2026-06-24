@@ -788,6 +788,52 @@
     </style>
 </head>
 <body>
+    <!-- ===== এডমিন লগইন স্ক্রিন ===== -->
+    <div id="adminLoginScreen" style="
+        position:fixed; inset:0; z-index:99999;
+        background:linear-gradient(135deg,#0d2818,#1a472a,#0d2818);
+        display:flex; align-items:center; justify-content:center; padding:1.5rem;">
+        <div style="background:white; border-radius:20px; padding:2.2rem; max-width:380px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+            <div style="text-align:center; margin-bottom:1.5rem;">
+                <div style="width:64px;height:64px;background:linear-gradient(135deg,#1a472a,#2d6a4f);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.8rem;">
+                    <i class="fas fa-user-shield" style="color:#ffd700; font-size:1.8rem;"></i>
+                </div>
+                <h2 style="color:#1a472a; font-size:1.3rem;">অ্যাডমিন প্যানেল লগইন</h2>
+                <p style="color:#888; font-size:0.85rem;">নারায়নপুর ইসলামী আইডিয়াল যুব সমাজ</p>
+            </div>
+
+            <div id="adminLoginError" style="display:none; background:#f8d7da; color:#721c24; padding:0.7rem; border-radius:8px; font-size:0.85rem; margin-bottom:1rem;"></div>
+
+            <form id="adminLoginForm" onsubmit="return false;">
+                <div style="margin-bottom:1rem;">
+                    <label style="font-size:0.85rem; font-weight:600; color:#333; display:block; margin-bottom:0.3rem;">ইমেইল</label>
+                    <input type="email" id="adminLoginEmail" required placeholder="your@email.com"
+                        style="width:100%; padding:0.8rem; border:1px solid #ddd; border-radius:8px; font-size:0.9rem;">
+                </div>
+                <div style="margin-bottom:1.2rem;">
+                    <label style="font-size:0.85rem; font-weight:600; color:#333; display:block; margin-bottom:0.3rem;">পাসওয়ার্ড</label>
+                    <div style="position:relative;">
+                        <input type="password" id="adminLoginPassword" required placeholder="পাসওয়ার্ড"
+                            style="width:100%; padding:0.8rem; padding-right:2.6rem; border:1px solid #ddd; border-radius:8px; font-size:0.9rem;">
+                        <span onclick="toggleAdminLoginPass()" style="position:absolute;right:0.7rem;top:50%;transform:translateY(-50%);cursor:pointer;color:#888;">
+                            <i class="fas fa-eye" id="adminLoginPassIcon"></i>
+                        </span>
+                    </div>
+                </div>
+                <button type="submit" id="adminLoginSubmitBtn" onclick="handleAdminLogin()"
+                    style="width:100%; background:linear-gradient(135deg,#1a472a,#2d6a4f); color:white; border:none; padding:0.9rem; border-radius:8px; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:'Noto Sans Bengali',sans-serif;">
+                    <i class="fas fa-sign-in-alt"></i> লগইন করুন
+                </button>
+            </form>
+
+            <p style="text-align:center; margin-top:1.2rem; font-size:0.8rem; color:#888;">
+                <a href="index.html" style="color:#1a472a; text-decoration:none;"><i class="fas fa-arrow-left"></i> মূল ওয়েবসাইটে ফিরে যান</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== মূল অ্যাডমিন প্যানেল (লগইনের পর দেখাবে) ===== -->
+    <div id="adminMainPanel" style="display:none;">
     <div class="admin-container">
         <!-- টপ হেডার - মোবাইলের জন্য -->
         <div class="top-header">
@@ -1910,6 +1956,8 @@
             </form>
         </div>
     </div>
+    <!-- ===== /adminMainPanel ===== -->
+    </div>
 
     <!-- স্ক্রিপ্ট লোড -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -1996,27 +2044,96 @@
         }
 
         // ==================== অ্যাডমিন অথেনটিকেশন ====================
+        function showAdminLogin() {
+            document.getElementById('adminLoginScreen').style.display = 'flex';
+            document.getElementById('adminMainPanel').style.display = 'none';
+        }
+
+        function showAdminMainPanel() {
+            document.getElementById('adminLoginScreen').style.display = 'none';
+            document.getElementById('adminMainPanel').style.display = 'block';
+        }
+
+        function toggleAdminLoginPass() {
+            const inp = document.getElementById('adminLoginPassword');
+            const icon = document.getElementById('adminLoginPassIcon');
+            if (inp.type === 'password') {
+                inp.type = 'text'; icon.className = 'fas fa-eye-slash';
+            } else {
+                inp.type = 'password'; icon.className = 'fas fa-eye';
+            }
+        }
+
+        async function handleAdminLogin() {
+            const email = document.getElementById('adminLoginEmail').value.trim();
+            const pass  = document.getElementById('adminLoginPassword').value;
+            const btn   = document.getElementById('adminLoginSubmitBtn');
+            const errEl = document.getElementById('adminLoginError');
+
+            errEl.style.display = 'none';
+
+            if (!email || !pass) {
+                errEl.textContent = 'ইমেইল ও পাসওয়ার্ড দিন!';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> যাচাই করা হচ্ছে...';
+
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+                // onAuthStateChanged বাকি কাজ করবে
+            } catch (error) {
+                console.error('Admin login error:', error.code, error.message);
+                const msgs = {
+                    'auth/user-not-found':     'এই ইমেইলে কোনো অ্যাকাউন্ট নেই!',
+                    'auth/wrong-password':     'পাসওয়ার্ড ভুল!',
+                    'auth/invalid-credential': 'ইমেইল বা পাসওয়ার্ড ভুল!',
+                    'auth/invalid-email':      'ইমেইল ঠিকানা সঠিক নয়!',
+                    'auth/too-many-requests':  'বারবার ভুল চেষ্টা! কিছুক্ষণ পর চেষ্টা করুন।',
+                    'auth/network-request-failed': 'ইন্টারনেট সংযোগ সমস্যা!',
+                };
+                errEl.textContent = msgs[error.code] || ('সমস্যা: ' + error.message);
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন করুন';
+            }
+        }
+
+        // Enter key দিয়ে submit
+        document.addEventListener('DOMContentLoaded', () => {
+            const pwField = document.getElementById('adminLoginPassword');
+            if (pwField) pwField.addEventListener('keypress', e => { if (e.key === 'Enter') handleAdminLogin(); });
+        });
+
+        let authCheckDone = false; // প্রথমবার auth state load হওয়ার আগে কিছু করবো না
+
         auth.onAuthStateChanged(async (user) => {
+            const btn = document.getElementById('adminLoginSubmitBtn');
+
             if (!user) {
-                window.location.href = 'index.html';
+                // লগইন নেই — login screen দেখাও (redirect না করে, যাতে loop না হয়)
+                showAdminLogin();
+                authCheckDone = true;
                 return;
             }
 
             try {
                 let userDoc = await db.collection('users').doc(user.uid).get();
 
-                // Firestore collection ডিলিট হলে — restore করো
+                // Firestore collection এ doc না থাকলে — restore করো
                 if (!userDoc.exists) {
                     console.warn('User doc missing — restoring...');
                     await db.collection('users').doc(user.uid).set({
-                        name:  user.displayName || user.email.split('@')[0],
-                        email: user.email,
-                        phone: '',
-                        role:  'member', // default member, manually set admin in Firestore
-                        isActive: true,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        uid: user.uid,
-                        restoredAt: firebase.firestore.FieldValue.serverTimestamp()
+                        name:       user.displayName || user.email.split('@')[0],
+                        email:      user.email,
+                        phone:      '',
+                        role:       'member', // ডিফল্ট member, Firestore এ গিয়ে admin করুন
+                        isActive:   true,
+                        createdAt:  new Date().toISOString(),
+                        uid:        user.uid,
+                        restoredAt: new Date().toISOString()
                     });
                     userDoc = await db.collection('users').doc(user.uid).get();
                 }
@@ -2024,26 +2141,41 @@
                 const userData = userDoc.data() || {};
 
                 if (userData.role !== 'admin') {
-                    alert('এই অ্যাকাউন্টে এডমিন অ্যাক্সেস নেই!\n\nFirebase Console → Firestore → users → আপনার UID → role: "admin" সেট করুন।');
-                    window.location.href = 'index.html';
+                    // এডমিন না হলে login screen এ error দেখাও — auto logout করে দাও
+                    await auth.signOut();
+                    const errEl = document.getElementById('adminLoginError');
+                    if (errEl) {
+                        errEl.innerHTML = 'এই অ্যাকাউন্টে এডমিন অ্যাক্সেস নেই!<br><small>Firebase Console → Firestore → users → role: "admin" সেট করুন।</small>';
+                        errEl.style.display = 'block';
+                    }
+                    showAdminLogin();
+                    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন করুন'; }
                     return;
                 }
 
+                // ✅ Admin যাচাই সফল — main panel দেখাও
                 currentAdmin = user;
                 const name = userData.name || user.displayName || 'এডমিন';
                 document.getElementById('adminName').textContent = name;
                 document.getElementById('adminAvatar').textContent = name[0].toUpperCase();
 
+                showAdminMainPanel();
+
                 loadDashboardData();
                 loadNotifications();
-
-                // Auto refresh প্রতি ৩০ সেকেন্ডে
                 setInterval(() => { loadDashboardData(); loadNotifications(); }, 30000);
 
-            } catch(e) {
-                console.error('Admin auth error:', e);
-                alert('সংযোগ সমস্যা: ' + e.message);
+            } catch (e) {
+                console.error('Admin auth check error:', e);
+                const errEl = document.getElementById('adminLoginError');
+                if (errEl) {
+                    errEl.textContent = 'সংযোগ সমস্যা: ' + e.message;
+                    errEl.style.display = 'block';
+                }
+                showAdminLogin();
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন করুন'; }
             }
+            authCheckDone = true;
         });
 
         // ==================== ড্যাশবোর্ড ডাটা লোড ====================
