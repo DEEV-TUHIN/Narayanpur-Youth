@@ -2005,6 +2005,24 @@
             }
         }
 
+        // Firestore write() — permission/network error হলে retry করে (max 3 বার)
+        async function writeWithRetry(writeFn, maxRetries = 3) {
+            let lastErr = null;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    return await writeFn();
+                } catch (err) {
+                    lastErr = err;
+                    console.warn(`Firestore write attempt ${i + 1} failed:`, err.code, err.message);
+                    if (err.code === 'permission-denied' && currentAdmin) {
+                        try { await currentAdmin.getIdToken(true); } catch (e) {}
+                    }
+                    if (i < maxRetries - 1) await new Promise(r => setTimeout(r, 800 * (i + 1)));
+                }
+            }
+            throw lastErr;
+        }
+
         let currentAdmin = null;
         let selectedMembers = [];
 
@@ -2348,10 +2366,14 @@
 
         async function deleteMember(userId) {
             if (confirm('সদস্য ডিলিট করতে চান?')) {
-                await db.collection('users').doc(userId).delete();
-                await logActivity('সদস্য ডিলিট', `সদস্য আইডি: ${userId}`);
-                loadMembers();
-                alert('সদস্য ডিলিট হয়েছে');
+                try {
+                    await writeWithRetry(() => db.collection('users').doc(userId).delete());
+                    await logActivity('সদস্য ডিলিট', `সদস্য আইডি: ${userId}`);
+                    loadMembers();
+                    alert('✅ সদস্য ডিলিট হয়েছে');
+                } catch (error) {
+                    alert('❌ ডিলিট সমস্যা: ' + error.message);
+                }
             }
         }
 
@@ -2387,26 +2409,34 @@
         }
 
         async function approvePayment(paymentId, userId) {
-            await db.collection('payments').doc(paymentId).update({ status: 'completed' });
-            await db.collection('notifications').add({
-                userId: userId,
-                type: 'payment_approved',
-                message: 'আপনার পেমেন্ট অ্যাপ্রুভ হয়েছে',
-                read: false,
-                createdAt: new Date()
-            });
-            await logActivity('পেমেন্ট অ্যাপ্রুভ', `পেমেন্ট আইডি: ${paymentId}`);
-            loadDashboardData();
-            loadPendingPayments();
-            alert('পেমেন্ট অ্যাপ্রুভ হয়েছে');
+            try {
+                await writeWithRetry(() => db.collection('payments').doc(paymentId).update({ status: 'completed' }));
+                await writeWithRetry(() => db.collection('notifications').add({
+                    userId: userId,
+                    type: 'payment_approved',
+                    message: 'আপনার পেমেন্ট অ্যাপ্রুভ হয়েছে',
+                    read: false,
+                    createdAt: new Date().toISOString()
+                }));
+                await logActivity('পেমেন্ট অ্যাপ্রুভ', `পেমেন্ট আইডি: ${paymentId}`);
+                loadDashboardData();
+                loadPendingPayments();
+                alert('✅ পেমেন্ট অ্যাপ্রুভ হয়েছে');
+            } catch (error) {
+                alert('❌ অ্যাপ্রুভ সমস্যা: ' + error.message);
+            }
         }
 
         async function rejectPayment(paymentId) {
             if (confirm('পেমেন্ট রিজেক্ট করতে চান?')) {
-                await db.collection('payments').doc(paymentId).delete();
-                loadDashboardData();
-                loadPendingPayments();
-                alert('পেমেন্ট রিজেক্ট করা হয়েছে');
+                try {
+                    await writeWithRetry(() => db.collection('payments').doc(paymentId).delete());
+                    loadDashboardData();
+                    loadPendingPayments();
+                    alert('✅ পেমেন্ট রিজেক্ট করা হয়েছে');
+                } catch (error) {
+                    alert('❌ রিজেক্ট সমস্যা: ' + error.message);
+                }
             }
         }
 
@@ -2444,26 +2474,35 @@
 
         document.getElementById('newsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            await db.collection('news').add({
-                title: document.getElementById('newsTitle').value,
-                description: document.getElementById('newsDescription').value,
-                content: document.getElementById('newsContent').value,
-                image: document.getElementById('newsImage').value,
-                status: document.getElementById('newsStatus').value,
-                createdAt: new Date(),
-                createdBy: currentAdmin.uid
-            });
-            await logActivity('নতুন নিউজ', `শিরোনাম: ${document.getElementById('newsTitle').value}`);
-            closeModal('newsModal');
-            loadNews();
-            alert('নিউজ যোগ করা হয়েছে');
+            const title = document.getElementById('newsTitle').value;
+            try {
+                await writeWithRetry(() => db.collection('news').add({
+                    title: title,
+                    description: document.getElementById('newsDescription').value,
+                    content: document.getElementById('newsContent').value,
+                    image: document.getElementById('newsImage').value,
+                    status: document.getElementById('newsStatus').value,
+                    createdAt: new Date().toISOString(),
+                    createdBy: currentAdmin.uid
+                }));
+                await logActivity('নতুন নিউজ', `শিরোনাম: ${title}`);
+                closeModal('newsModal');
+                loadNews();
+                alert('✅ নিউজ যোগ করা হয়েছে');
+            } catch (error) {
+                alert('❌ নিউজ যোগ করতে সমস্যা: ' + error.message);
+            }
         });
 
         async function deleteNews(newsId) {
             if (confirm('নিউজ ডিলিট করতে চান?')) {
-                await db.collection('news').doc(newsId).delete();
-                loadNews();
-                alert('নিউজ ডিলিট হয়েছে');
+                try {
+                    await writeWithRetry(() => db.collection('news').doc(newsId).delete());
+                    loadNews();
+                    alert('✅ নিউজ ডিলিট হয়েছে');
+                } catch (error) {
+                    alert('❌ ডিলিট সমস্যা: ' + error.message);
+                }
             }
         }
 
@@ -2504,26 +2543,35 @@
 
         document.getElementById('eventForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            await db.collection('events').add({
-                title: document.getElementById('eventTitle').value,
-                date: document.getElementById('eventDate').value,
-                time: document.getElementById('eventTime').value,
-                location: document.getElementById('eventLocation').value,
-                description: document.getElementById('eventDescription').value,
-                createdAt: new Date(),
-                createdBy: currentAdmin.uid
-            });
-            await logActivity('নতুন ইভেন্ট', `ইভেন্ট: ${document.getElementById('eventTitle').value}`);
-            closeModal('eventModal');
-            loadEvents();
-            alert('ইভেন্ট যোগ করা হয়েছে');
+            const title = document.getElementById('eventTitle').value;
+            try {
+                await writeWithRetry(() => db.collection('events').add({
+                    title: title,
+                    date: document.getElementById('eventDate').value,
+                    time: document.getElementById('eventTime').value,
+                    location: document.getElementById('eventLocation').value,
+                    description: document.getElementById('eventDescription').value,
+                    createdAt: new Date().toISOString(),
+                    createdBy: currentAdmin.uid
+                }));
+                await logActivity('নতুন ইভেন্ট', `ইভেন্ট: ${title}`);
+                closeModal('eventModal');
+                loadEvents();
+                alert('✅ ইভেন্ট যোগ করা হয়েছে');
+            } catch (error) {
+                alert('❌ ইভেন্ট যোগ করতে সমস্যা: ' + error.message);
+            }
         });
 
         async function deleteEvent(eventId) {
             if (confirm('ইভেন্ট ডিলিট করতে চান?')) {
-                await db.collection('events').doc(eventId).delete();
-                loadEvents();
-                alert('ইভেন্ট ডিলিট হয়েছে');
+                try {
+                    await writeWithRetry(() => db.collection('events').doc(eventId).delete());
+                    loadEvents();
+                    alert('✅ ইভেন্ট ডিলিট হয়েছে');
+                } catch (error) {
+                    alert('❌ ডিলিট সমস্যা: ' + error.message);
+                }
             }
         }
 
@@ -2559,22 +2607,30 @@
         }
 
         async function uploadImage(url, title) {
-            await db.collection('gallery').add({
-                url: url,
-                title: title,
-                createdAt: new Date(),
-                uploadedBy: currentAdmin.uid
-            });
-            await logActivity('ছবি আপলোড', `শিরোনাম: ${title}`);
-            loadAdminGallery();
-            alert('ছবি আপলোড হয়েছে');
+            try {
+                await writeWithRetry(() => db.collection('gallery').add({
+                    url: url,
+                    title: title,
+                    createdAt: new Date().toISOString(),
+                    uploadedBy: currentAdmin.uid
+                }));
+                await logActivity('ছবি আপলোড', `শিরোনাম: ${title}`);
+                loadAdminGallery();
+                alert('✅ ছবি আপলোড হয়েছে');
+            } catch (error) {
+                alert('❌ আপলোড সমস্যা: ' + error.message);
+            }
         }
 
         async function deleteImage(imageId) {
             if (confirm('ছবি ডিলিট করতে চান?')) {
-                await db.collection('gallery').doc(imageId).delete();
-                loadAdminGallery();
-                alert('ছবি ডিলিট হয়েছে');
+                try {
+                    await writeWithRetry(() => db.collection('gallery').doc(imageId).delete());
+                    loadAdminGallery();
+                    alert('✅ ছবি ডিলিট হয়েছে');
+                } catch (error) {
+                    alert('❌ ডিলিট সমস্যা: ' + error.message);
+                }
             }
         }
 
@@ -2621,18 +2677,22 @@
                 icon: document.getElementById('planIcon').value,
                 description: document.getElementById('planDescription').value,
             };
-            if (editId) {
-                await db.collection('membershipPlans').doc(editId).update(data);
-                await logActivity('প্ল্যান আপডেট', `প্ল্যান: ${data.name}`);
-                alert('প্ল্যান আপডেট হয়েছে');
-            } else {
-                await db.collection('membershipPlans').add({ ...data, createdAt: new Date(), createdBy: currentAdmin.uid });
-                await logActivity('নতুন প্ল্যান', `প্ল্যান: ${data.name}`);
-                alert('প্ল্যান যোগ করা হয়েছে');
+            try {
+                if (editId) {
+                    await writeWithRetry(() => db.collection('membershipPlans').doc(editId).update(data));
+                    await logActivity('প্ল্যান আপডেট', `প্ল্যান: ${data.name}`);
+                    alert('✅ প্ল্যান আপডেট হয়েছে');
+                } else {
+                    await writeWithRetry(() => db.collection('membershipPlans').add({ ...data, createdAt: new Date().toISOString(), createdBy: currentAdmin.uid }));
+                    await logActivity('নতুন প্ল্যান', `প্ল্যান: ${data.name}`);
+                    alert('✅ প্ল্যান যোগ করা হয়েছে');
+                }
+                closeModal('planModal');
+                delete modal.dataset.editId;
+                loadPlans();
+            } catch (error) {
+                alert('❌ সমস্যা: ' + error.message);
             }
-            closeModal('planModal');
-            delete modal.dataset.editId;
-            loadPlans();
         });
 
         async function deletePlan(planId) {
@@ -2699,17 +2759,22 @@
         document.getElementById('tickerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const content = document.getElementById('tickerContent').value;
-            
-            const oldTicker = await db.collection('newsTicker').get();
-            oldTicker.forEach(async (doc) => await db.collection('newsTicker').doc(doc.id).delete());
-            
-            await db.collection('newsTicker').add({
-                content: content,
-                updatedAt: new Date(),
-                updatedBy: currentAdmin.uid
-            });
-            
-            alert('টিকার আপডেট হয়েছে');
+            try {
+                const oldTicker = await db.collection('newsTicker').get();
+                const deletePromises = [];
+                oldTicker.forEach(doc => deletePromises.push(db.collection('newsTicker').doc(doc.id).delete()));
+                await Promise.all(deletePromises);
+
+                await writeWithRetry(() => db.collection('newsTicker').add({
+                    content: content,
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: currentAdmin.uid
+                }));
+
+                alert('✅ টিকার আপডেট হয়েছে');
+            } catch (error) {
+                alert('❌ টিকার আপডেট সমস্যা: ' + error.message);
+            }
         });
 
         // ==================== পেমেন্ট প্রোভাইডার ম্যানেজমেন্ট ====================
@@ -2860,11 +2925,11 @@
             const action = status === 'approved' ? 'অনুমোদন করতে' : 'বাতিল করতে';
             if (!confirm(`এই দানটি ${action} চান?`)) return;
             try {
-                await db.collection('donations').doc(donationId).update({ 
+                await writeWithRetry(() => db.collection('donations').doc(donationId).update({
                     status: status,
-                    updatedAt: new Date(),
+                    updatedAt: new Date().toISOString(),
                     updatedBy: currentAdmin.uid
-                });
+                }));
                 await logActivity('দান আপডেট', `ID: ${donationId}, স্ট্যাটাস: ${status}`);
                 loadDonations();
                 loadDonationAnalytics();
@@ -2895,7 +2960,7 @@
             }
 
             try {
-                await db.collection('donations').add({
+                await writeWithRetry(() => db.collection('donations').add({
                     donorName: name,
                     amount: amount,
                     provider: method,
@@ -2903,20 +2968,20 @@
                     status: 'approved',
                     isManual: true,
                     userId: null,
-                    createdAt: new Date(),
+                    createdAt: new Date().toISOString(),
                     addedBy: currentAdmin.uid
-                });
+                }));
 
                 document.getElementById('manualDonorName').value = '';
                 document.getElementById('manualDonationAmount').value = '';
                 document.getElementById('manualDonationNote').value = '';
 
                 await logActivity('ম্যানুয়াল দান', `দাতা: ${name}, পরিমাণ: ${amount} ৳`);
-                alert('ম্যানুয়াল দান সফলভাবে যোগ হয়েছে!');
+                alert('✅ ম্যানুয়াল দান সফলভাবে যোগ হয়েছে!');
                 loadDonations();
                 loadDonationAnalytics();
             } catch (error) {
-                alert('যোগ করতে সমস্যা: ' + error.message);
+                alert('❌ যোগ করতে সমস্যা: ' + error.message + '\n\nFirestore Rules Publish করা আছে কিনা চেক করুন।');
             }
         }
 
@@ -2997,10 +3062,10 @@
                 isManual: document.getElementById('prayerManualMode').checked,
                 fajr: g('pFajr'), dhuhr: g('pDhuhr'), asr: g('pAsr'),
                 maghrib: g('pMaghrib'), isha: g('pIsha'), hijri: g('pHijri'),
-                updatedAt: new Date()
+                updatedAt: new Date().toISOString()
             };
             try {
-                await db.collection('settings').doc('prayerTimes').set(data);
+                await writeWithRetry(() => db.collection('settings').doc('prayerTimes').set(data));
                 await logActivity('নামাজ সময় আপডেট', `ম্যানুয়াল: ${data.isManual}`);
                 alert('✅ নামাজের সময় সেভ হয়েছে!');
             } catch(e) { alert('সমস্যা: ' + e.message); }
@@ -3039,7 +3104,7 @@
                 if (snap.empty) { alert('এই ইমেইলের কোনো সদস্য পাওয়া যায়নি!'); return; }
                 const docRef = snap.docs[0].ref;
                 const userName = snap.docs[0].data().name || email;
-                await docRef.update({ role: 'admin' });
+                await writeWithRetry(() => docRef.update({ role: 'admin' }));
                 await logActivity('এডমিন নিয়োগ', `${userName} (${email})`);
                 alert(`✅ ${userName} কে এডমিন করা হয়েছে!`);
                 document.getElementById('makeAdminEmail').value = '';
@@ -3050,7 +3115,7 @@
         async function removeAdmin(uid, name) {
             if (!confirm(`${name} এর এডমিন অ্যাক্সেস সরাতে চান?`)) return;
             try {
-                await db.collection('users').doc(uid).update({ role: 'user' });
+                await writeWithRetry(() => db.collection('users').doc(uid).update({ role: 'user' }));
                 await logActivity('এডমিন অ্যাক্সেস সরানো', name);
                 alert(`✅ ${name} এর এডমিন অ্যাক্সেস সরানো হয়েছে`);
                 loadAdminManage();
@@ -3078,7 +3143,7 @@
             const senderId = document.getElementById('smsSenderId')?.value?.trim();
             if (!apiKey) { alert('API Key দিন!'); return; }
             try {
-                await db.collection('settings').doc('smsConfig').set({ provider, apiKey, senderId, updatedAt: new Date() });
+                await writeWithRetry(() => db.collection('settings').doc('smsConfig').set({ provider, apiKey, senderId, updatedAt: new Date().toISOString() }));
                 alert('✅ SMS সেটিংস সেভ হয়েছে!');
             } catch(e) { alert('সমস্যা: ' + e.message); }
         }
@@ -3180,18 +3245,20 @@
             const note      = getStr('finInputNote');
 
             try {
-                await db.collection('settings').doc('finance').set({
+                await writeWithRetry(() => db.collection('settings').doc('finance').set({
                     totalIncome:      income,
                     totalExpense:     expense,
                     totalVolunteers:  volunteers,
                     note:             note,
-                    updatedAt:        new Date(),
+                    updatedAt:        new Date().toISOString(),
                     updatedBy:        currentAdmin ? currentAdmin.uid : 'admin'
-                }, { merge: true });
+                }, { merge: true }));
                 await logActivity('আর্থিক তথ্য আপডেট', `আয়: ${income} ৳, ব্যয়: ${expense} ৳`);
                 alert('✅ আর্থিক তথ্য সেভ হয়েছে!');
                 loadFinanceAdmin();
-            } catch(e) { alert('সেভ সমস্যা: ' + e.message); }
+            } catch(e) {
+                alert('❌ সেভ সমস্যা: ' + e.message + '\n\nFirestore Rules Publish করা আছে কিনা চেক করুন।');
+            }
         }
 
         async function addManualDonationFinance() {
@@ -3207,8 +3274,7 @@
             }
 
             try {
-                // donations collection এ যোগ করুন
-                await db.collection('donations').add({
+                await writeWithRetry(() => db.collection('donations').add({
                     donorName:  name,
                     amount:     amount,
                     provider:   method,
@@ -3217,19 +3283,20 @@
                     isManual:   true,
                     userId:     uid || null,
                     userEmail:  null,
-                    createdAt:  new Date(),
+                    createdAt:  new Date().toISOString(),
                     addedBy:    currentAdmin ? currentAdmin.uid : 'admin'
-                });
+                }));
 
-                // ইনপুট ক্লিয়ার
                 ['manFinDonorName','manFinDonorAmount','manFinUserId','manFinNote'].forEach(id => {
                     const el = document.getElementById(id);
                     if(el) el.value = '';
                 });
 
-                await logActivity('ম্যানুয়াল দান এন্ট্রি', `দাতা: ${name}, পরিমাণ: ${amount} ৳, মেথড: ${method}`);
-                alert(`✅ ${name} এর ${amount} ৳ দান এন্ট্রি সফল!\nতাঁর দান ইতিহাসে দেখাবে।`);
-            } catch(e) { alert('এন্ট্রি সমস্যা: ' + e.message); }
+                await logActivity('ম্যানুয়াল দান এন্ট্রি', 'দাতা: ' + name + ', পরিমাণ: ' + amount + ' ৳, মেথড: ' + method);
+                alert('✅ ' + name + ' এর ' + amount + ' ৳ দান এন্ট্রি সফল!\nতাঁর দান ইতিহাসে দেখাবে।');
+            } catch(e) {
+                alert('❌ এন্ট্রি সমস্যা: ' + e.message + '\n\nFirestore Rules Publish করা আছে কিনা চেক করুন।');
+            }
         }
 
         // ==================== পাসওয়ার্ড দেখানো (admin লগইন) ====================
@@ -3341,16 +3408,20 @@
 
         document.getElementById('notificationSettingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            await db.collection('settings').doc('notifications').set({
-                emailNewMember: document.getElementById('emailNewMember').checked,
-                emailNewPayment: document.getElementById('emailNewPayment').checked,
-                emailNewEvent: document.getElementById('emailNewEvent').checked,
-                smsPaymentReminder: document.getElementById('smsPaymentReminder').checked,
-                smsEventReminder: document.getElementById('smsEventReminder').checked,
-                updatedAt: new Date(),
-                updatedBy: currentAdmin.uid
-            });
-            alert('সেটিংস সেভ করা হয়েছে');
+            try {
+                await writeWithRetry(() => db.collection('settings').doc('notifications').set({
+                    emailNewMember: document.getElementById('emailNewMember').checked,
+                    emailNewPayment: document.getElementById('emailNewPayment').checked,
+                    emailNewEvent: document.getElementById('emailNewEvent').checked,
+                    smsPaymentReminder: document.getElementById('smsPaymentReminder').checked,
+                    smsEventReminder: document.getElementById('smsEventReminder').checked,
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: currentAdmin.uid
+                }));
+                alert('✅ সেটিংস সেভ করা হয়েছে');
+            } catch (error) {
+                alert('❌ সেভ সমস্যা: ' + error.message);
+            }
         });
 
         // ==================== নোটিফিকেশন ====================
