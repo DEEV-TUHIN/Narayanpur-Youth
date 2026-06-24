@@ -1981,7 +1981,30 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // Firestore connection settings — "client is offline" সমস্যা সমাধান
+        db.settings({
+            cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+        });
+
+        // নেটওয়ার্ক জোরপূর্বক enable — কখনো কখনো SDK ভুলবশত offline mode এ থাকে
+        db.enableNetwork().catch(e => console.warn('enableNetwork:', e.message));
+
         // গ্লোবাল ভেরিয়েবল
+        // Firestore get() — offline error হলে retry করে (max 3 বার)
+        async function getDocWithRetry(ref, maxRetries = 3) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    return await ref.get();
+                } catch (err) {
+                    console.warn(`Firestore get attempt ${i + 1} failed:`, err.message);
+                    if (i === maxRetries - 1) throw err;
+                    await new Promise(r => setTimeout(r, 1000 * (i + 1))); // 1s, 2s delay
+                    // পরের চেষ্টায় network আবার enable করো
+                    try { await db.enableNetwork(); } catch (e) {}
+                }
+            }
+        }
+
         let currentAdmin = null;
         let selectedMembers = [];
 
@@ -2120,7 +2143,7 @@
             }
 
             try {
-                let userDoc = await db.collection('users').doc(user.uid).get();
+                let userDoc = await getDocWithRetry(db.collection('users').doc(user.uid));
 
                 // Firestore collection এ doc না থাকলে — restore করো
                 if (!userDoc.exists) {
@@ -2169,7 +2192,13 @@
                 console.error('Admin auth check error:', e);
                 const errEl = document.getElementById('adminLoginError');
                 if (errEl) {
-                    errEl.textContent = 'সংযোগ সমস্যা: ' + e.message;
+                    if (e.message && (e.message.includes('offline') || e.code === 'unavailable')) {
+                        errEl.innerHTML = 'ইন্টারনেট সংযোগ সমস্যা! সংযোগ চেক করে নিচের বাটনে ক্লিক করুন।<br>' +
+                            '<button onclick="location.reload()" style="margin-top:0.5rem; background:#1a472a; color:white; border:none; padding:0.4rem 1rem; border-radius:6px; cursor:pointer; font-size:0.8rem;">' +
+                            '<i class="fas fa-redo"></i> আবার চেষ্টা করুন</button>';
+                    } else {
+                        errEl.textContent = 'সংযোগ সমস্যা: ' + e.message;
+                    }
                     errEl.style.display = 'block';
                 }
                 showAdminLogin();
