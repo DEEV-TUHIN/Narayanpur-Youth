@@ -2748,24 +2748,47 @@
                 alert('পেমেন্ট URL দেওয়া বাধ্যতামূলক!');
                 return;
             }
+            if (!currentAdmin) {
+                alert('এডমিন সেশন পাওয়া যাচ্ছে না! পেজ রিলোড করে আবার লগইন করুন।');
+                return;
+            }
 
-            try {
-                await db.collection('settings').doc('paymentProvider').set({
-                    providerName: name,
-                    paymentUrl: url,
-                    apiKey: apiKey,
-                    secretKey: secretKey,
-                    isActive: isActive,
-                    updatedAt: new Date(),
-                    updatedBy: currentAdmin.uid
-                });
-                
+            const data = {
+                providerName: name,
+                paymentUrl: url,
+                apiKey: apiKey,
+                secretKey: secretKey,
+                isActive: isActive,
+                updatedAt: new Date().toISOString(),
+                updatedBy: currentAdmin.uid
+            };
+
+            // retry সহ সেভ — permission error হলে token refresh করে আবার চেষ্টা
+            let saved = false, lastErr = null;
+            for (let i = 0; i < 3; i++) {
+                try {
+                    await db.collection('settings').doc('paymentProvider').set(data);
+                    saved = true;
+                    break;
+                } catch (error) {
+                    lastErr = error;
+                    console.warn(`savePaymentProvider attempt ${i+1} failed:`, error.code, error.message);
+                    if (error.code === 'permission-denied' && currentAdmin) {
+                        // Auth token পুরনো হলে force refresh করো
+                        try { await currentAdmin.getIdToken(true); } catch(e) {}
+                    }
+                    await new Promise(r => setTimeout(r, 800 * (i + 1)));
+                }
+            }
+
+            if (saved) {
                 await logActivity('পেমেন্ট প্রোভাইডার আপডেট', `প্রোভাইডার: ${name}, সক্রিয়: ${isActive}`);
-                alert('পেমেন্ট প্রোভাইডার সেটিংস সেভ হয়েছে!');
+                alert('✅ পেমেন্ট প্রোভাইডার সেটিংস সেভ হয়েছে!');
                 loadPaymentProvider();
                 loadDonationAnalytics();
-            } catch (error) {
-                alert('সেভ করতে সমস্যা: ' + error.message);
+            } else {
+                alert('❌ সেভ করতে সমস্যা: ' + (lastErr?.message || 'অজানা সমস্যা') +
+                      '\n\nFirestore Rules ঠিকভাবে Publish করা আছে কিনা চেক করুন।');
             }
         }
 
@@ -3265,7 +3288,7 @@
                 youtube:  getVal('siteYoutube'),
                 whatsapp: getVal('siteWhatsapp'),
                 telegram: getVal('siteTelegram'),
-                updatedAt: new Date(),
+                updatedAt: new Date().toISOString(),
                 updatedBy: currentAdmin ? currentAdmin.uid : 'admin'
             };
 
@@ -3274,13 +3297,28 @@
                 return;
             }
 
-            try {
-                await db.collection('settings').doc('siteInfo').set(data, { merge: true });
-                await logActivity('সাইট সেটিংস আপডেট', `ঠিকানা: ${data.address}, ফোন: ${data.phone}`);
-                alert('✅ সাইট সেটিংস সফলভাবে সেভ হয়েছে!\nওয়েবসাইটে তাৎক্ষণিক প্রতিফলিত হবে।');
+            let saved = false, lastErr = null;
+            for (let i = 0; i < 3; i++) {
+                try {
+                    await db.collection('settings').doc('siteInfo').set(data, { merge: true });
+                    saved = true;
+                    break;
+                } catch (e) {
+                    lastErr = e;
+                    console.warn('saveSiteSettings attempt ' + (i+1) + ' failed:', e.message);
+                    if (e.code === 'permission-denied' && currentAdmin) {
+                        try { await currentAdmin.getIdToken(true); } catch(_) {}
+                    }
+                    await new Promise(r => setTimeout(r, 800 * (i + 1)));
+                }
+            }
+
+            if (saved) {
+                await logActivity('সাইট সেটিংস আপডেট', 'ঠিকানা: ' + data.address + ', ফোন: ' + data.phone);
+                alert('✅ সাইট সেটিংস সফলভাবে সেভ হয়েছে!\nওয়েবসাইটে তাৎক্ষণিক প্রতিফলিত হবে (সব ডিভাইসে)।');
                 loadSiteSettingsAdmin();
-            } catch(e) {
-                alert('সেভ করতে সমস্যা: ' + e.message);
+            } else {
+                alert('❌ সেভ করতে সমস্যা: ' + (lastErr ? lastErr.message : '') + '\n\nFirestore Rules Publish করা আছে কিনা চেক করুন।');
             }
         }
 
